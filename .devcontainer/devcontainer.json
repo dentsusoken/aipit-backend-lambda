@@ -1,0 +1,14 @@
+{
+    "name": "localstack-devcontainer",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [4566],
+    "postCreateCommand": "awslocal --version",
+    "customizations": {
+      "vscode": {
+        "extensions": ["ms-python.python"]
+      }
+    }
+  }
+  
