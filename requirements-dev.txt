@@ -7,3 +7,4 @@ flake8
 mypy
 pytest
 types-requests
+pre-commit
