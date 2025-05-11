@@ -4,19 +4,30 @@
     "service": "app",
     "workspaceFolder": "/workspace",
     "forwardPorts": [4566],
-    "postCreateCommand": "awslocal --version",
+    "postCreateCommand": "pip install -r requirements-dev.txt",
     "customizations": {
       "vscode": {
         "extensions": [
           "amazonwebservices.aws-toolkit-vscode",
           "ms-python.python",
           "ms-python.vscode-pylance",
-          "humao.rest-client"
+          "humao.rest-client",
+          "ms-python.black-formatter",
+          "ms-python.flake8",
+          "ms-python.mypy-type-checker",
         ]
       },
       "settings": {
         "python.pythonPath": "/usr/bin/python3",
-        "aws.profile": "localstack"
+        "aws.profile": "localstack",
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
       }
     }
   }
