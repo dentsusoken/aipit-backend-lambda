@@ -9,14 +9,16 @@
 - LocalStack（Pro対応可）による AWS サービスのローカルエミュレーション
 - Lambda, API Gateway, DynamoDB などをコンテナ内で検証可能
 - VS Code Dev Container に対応：ワンクリックで開発環境を構築
-- Python 開発者向けに以下の Lint/型チェックツールを標準搭載：
-  - `black`, `isort`, `flake8`, `mypy`, `pytest`, `types-requests`
+- `black`, `isort`, `flake8`, `mypy`, `pytest`, `pre-commit` による高品質な Python 開発体験
+- `TypedDict` による型安全な CloudFormation 出力ハンドリング
+- `aws-lambda-typing` による Lambda イベントの型補完
+- `types/` ディレクトリで型定義を一元管理（実装と分離）
 
 ---
 
 ## 🛠️ セットアップ手順
 
-### 1. このリポジトリをクローン
+### 1. クローン
 
 ```bash
 git clone https://github.com/fcf-koga/localstack-app-devcontainer.git
@@ -38,16 +40,20 @@ curl http://localhost:4566/_localstack/health
 ## 📁 ディレクトリ構成
 ```bash
 .
-├── .devcontainer/           # DevContainer 設定（VS Code用）
-│   └── devcontainer.json
-├── docker-compose.yml       # LocalStack 含むサービス定義
-├── requirements-dev.txt     # 開発用パッケージ
-├── src/                     # アプリケーションコード
+├── src/                     # Lambdaアプリケーションコード
 │   └── hello_world/
-├── tests/                   # テストコード（unit/integration）
-├── .editorconfig
-├── .gitattributes
-├── .dockerignore
+│       └── app.py
+├── types/                   # TypedDict による型定義
+│   ├── cloudformation.py    # CloudFormation describe_stacks の型
+│   └── lambda_events.py     # Lambdaのレスポンス型
+├── tests/                   # テストコード
+│   ├── unit/
+│   ├── integration/
+│   └── conftest.py          # 共通fixture + 型安全fixture
+├── .pre-commit-config.yaml  # pre-commitフック設定
+├── .devcontainer/
+│   └── devcontainer.json
+├── requirements-dev.txt
 └── README.md
 ```
 
@@ -63,10 +69,26 @@ isort .
 flake8 .
 
 # 型チェック
-mypy src tests
+mypy src tests types
 
 # テスト実行
 pytest
+pre-commit run --all-files
+```
+
+## 🔐 型定義の使用例
+```python
+# src/hello_world/app.py
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context
+from types.lambda_events import LambdaResponse
+
+def handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaResponse:
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": '{"message": "hello world"}'
+    }
 ```
 
 ## 📦 使用技術
