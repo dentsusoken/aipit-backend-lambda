@@ -6,16 +6,17 @@
 
 ## ✅ 特長
 
-- LocalStack（Pro対応可）による AWS サービスのエミュレーション
-- Lambda、API Gateway、DynamoDB のローカル検証
-- VS Code Dev Container による即時開発環境構築
-- Python フォーマッタ・Linter（black, flake8, isort, mypy）を標準搭載
+- LocalStack（Pro対応可）による AWS サービスのローカルエミュレーション
+- Lambda, API Gateway, DynamoDB などをコンテナ内で検証可能
+- VS Code Dev Container に対応：ワンクリックで開発環境を構築
+- Python 開発者向けに以下の Lint/型チェックツールを標準搭載：
+  - `black`, `isort`, `flake8`, `mypy`, `pytest`, `types-requests`
 
 ---
 
 ## 🛠️ セットアップ手順
 
-### 1. クローン
+### 1. このリポジトリをクローン
 
 ```bash
 git clone https://github.com/fcf-koga/localstack-app-devcontainer.git
@@ -37,14 +38,17 @@ curl http://localhost:4566/_localstack/health
 ## 📁 ディレクトリ構成
 ```bash
 .
-├── .devcontainer/           # DevContainer 設定
+├── .devcontainer/           # DevContainer 設定（VS Code用）
 │   └── devcontainer.json
-├── docker-compose.yml       # LocalStack サービス定義
-├── requirements-dev.txt     # Python 開発ツール（Linterなど）
+├── docker-compose.yml       # LocalStack 含むサービス定義
+├── requirements-dev.txt     # 開発用パッケージ
+├── src/                     # アプリケーションコード
+│   └── hello_world/
+├── tests/                   # テストコード（unit/integration）
 ├── .editorconfig
-├── .dockerignore
 ├── .gitattributes
-
+├── .dockerignore
+└── README.md
 ```
 
 ## 🧪 開発用コマンド
@@ -55,11 +59,14 @@ black .
 # import 整理
 isort .
 
-# Lint
+# Lint チェック
 flake8 .
 
 # 型チェック
-mypy .
+mypy src tests
+
+# テスト実行
+pytest
 ```
 
 ## 📦 使用技術

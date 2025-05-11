@@ -20,14 +20,14 @@
       "settings": {
         "python.pythonPath": "/usr/bin/python3",
         "aws.profile": "localstack",
-        "python.formatting.provider": "black",
         "editor.formatOnSave": true,
-        "python.linting.enabled": true,
-        "python.linting.flake8Enabled": true,
-        "python.linting.mypyEnabled": true,
+        "python.formatting.provider": "black",
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
-        }
+        },
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true
       }
     }
   }
