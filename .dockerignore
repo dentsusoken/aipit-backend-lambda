@@ -1,0 +1,40 @@
+# .dockerignore
+
+# OSやエディタの一時ファイル
+.DS_Store
+Thumbs.db
+*.swp
+
+# Git
+.git
+.gitignore
+
+# DevContainer関連（ホスト上でのみ必要）
+.devcontainer/*.code-workspace
+
+# Node/npm/yarn
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Logs
+*.log
+
+# VSCode
+.vscode
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+
+# SAM / LocalStack tmp files
+.localstack/
+.aws-sam/
