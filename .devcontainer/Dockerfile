@@ -7,8 +7,7 @@ RUN apt-get update && \
     curl \
     unzip \
     zip \
-    && pip install --upgrade pip \
-    && pip install awscli awscli-local aws-sam-cli
+    && pip install --upgrade pip
 
 # 環境変数のデフォルト値（LocalStack 開発用）
 ENV AWS_ACCESS_KEY_ID=test \

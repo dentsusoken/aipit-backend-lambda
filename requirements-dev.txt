@@ -1,4 +1,9 @@
+awscli
+awscli-local
+aws-sam-cli
 black
 isort
 flake8
 mypy
+pytest
+types-requests
