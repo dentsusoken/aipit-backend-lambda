@@ -4,6 +4,7 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "forwardPorts": [4566],
+  "runServices": ["localstack", "app"],
   "postCreateCommand": "pip install -r requirements-dev.txt && pre-commit install",
   "customizations": {
     "vscode": {

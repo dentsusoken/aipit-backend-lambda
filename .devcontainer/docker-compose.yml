@@ -13,30 +13,23 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=ap-northeast-1
-    networks:
-      - devnet
+      - AWS_ENDPOINT_URL=http://localstack:4566
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.3
     ports:
       - "4566:4566"
-      - "4571:4571"
     environment:
       - SERVICES=lambda,apigateway,s3
       - DEBUG=1
-      - DATA_DIR=/tmp/localstack
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=ap-northeast-1
       - LAMBDA_EXECUTOR=local
+      - DATA_DIR=/var/lib/localstack
     volumes:
-      - localstack_data:/tmp/localstack
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - devnet
+      - localstack_data:/var/lib/localstack
 
 volumes:
   localstack_data:
-
-networks:
-  devnet:
