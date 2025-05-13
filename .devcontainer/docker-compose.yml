@@ -10,10 +10,10 @@ services:
     depends_on:
       - localstack
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=ap-northeast-1
-      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_DEFAULT_REGION
+      - AWS_ENDPOINT_URL
 
   localstack:
     image: localstack/localstack:3.3
@@ -22,9 +22,9 @@ services:
     environment:
       - SERVICES=lambda,apigateway,s3
       - DEBUG=1
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=ap-northeast-1
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_DEFAULT_REGION
       - LAMBDA_EXECUTOR=local
       - DATA_DIR=/var/lib/localstack
     volumes:
