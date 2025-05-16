@@ -1,4 +1,3 @@
-awscli
 awscli-local
 aws-sam-cli
 black
