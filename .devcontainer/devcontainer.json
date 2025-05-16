@@ -5,7 +5,7 @@
   "workspaceFolder": "/workspace",
   "forwardPorts": [4566],
   "runServices": ["localstack", "app"],
-  "postCreateCommand": "pip install -r requirements-dev.txt && pre-commit install",
+  "postCreateCommand": "pip install -r requirements-dev.txt",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,7 +14,8 @@
         "humao.rest-client",
         "ms-python.black-formatter",
         "ms-python.flake8",
-        "ms-python.mypy-type-checker"
+        "ms-python.mypy-type-checker",
+        "ms-azuretools.vscode-docker"
       ]
     },
     "settings": {
