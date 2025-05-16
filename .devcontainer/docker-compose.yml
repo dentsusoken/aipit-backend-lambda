@@ -20,7 +20,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=lambda,apigateway,s3
+      - SERVICES=lambda,apigateway,s3,cloudformation,iam,logs
       - DEBUG=1
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
