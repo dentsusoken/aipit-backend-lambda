@@ -23,7 +23,7 @@ Resources:
       FunctionName: HelloWoorldFunction
       CodeUri: src/hello_world/
       Handler: app.handler
-      Runtime: python3.11
+      Runtime: python3.13
       Architectures:
       - x86_64
       Events:
