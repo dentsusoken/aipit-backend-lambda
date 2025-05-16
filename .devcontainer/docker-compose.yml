@@ -16,7 +16,7 @@ services:
       - AWS_ENDPOINT_URL
 
   localstack:
-    image: localstack/localstack:3.3
+    image: localstack/localstack:4.4
     ports:
       - "4566:4566"
     environment:
