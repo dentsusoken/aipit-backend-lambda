@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # 環境変数のデフォルト値（LocalStack 開発用）
 ENV LANG=en_US.UTF-8
