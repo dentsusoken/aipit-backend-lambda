@@ -19,8 +19,13 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 RUN locale-gen
 RUN echo 'LANG=en_US.UTF-8' > /etc/default/locale
 RUN pip install --upgrade pip
+
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
 RUN unzip /tmp/awscliv2.zip -d /tmp
 RUN /tmp/aws/install
+
+RUN curl -L -o /tmp/aws-sam-cli-linux.zip https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+RUN unzip /tmp/aws-sam-cli-linux.zip -d /tmp/aws-sam-cli-linux
+RUN /tmp/aws-sam-cli-linux/install
 
 WORKDIR /workspace

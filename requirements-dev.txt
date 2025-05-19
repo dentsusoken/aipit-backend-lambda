@@ -1,5 +1,4 @@
 awscli-local
-aws-sam-cli
 black
 isort
 flake8
