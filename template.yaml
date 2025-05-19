@@ -32,6 +32,29 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+  # S3 {
+  SampleBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: sample-bucket
+
+  PutS3ObjectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: PutS3ObjectFunction
+      CodeUri: src/S3
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        PutS3Object:
+          Type: Api
+          Properties:
+            Path: /s3
+            Method: post
+  # }
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -40,9 +63,19 @@ Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  PutS3ObjectApi:
+    Description: S3 オブジェクト追加用API
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/s3/"
+
+  # LocalStack 用API {
   LocalStackHelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function in LocalStack
     Value: !Sub "http://localstack:4566/restapis/${ServerlessRestApi}/Prod/_user_request_/hello"
+  LocalStackPutS3ObjectApi:
+    Description: LocalStack でのS3 オブジェクト追加用API
+    Value: !Sub "http://localstack:4566/restapis/${ServerlessRestApi}/Prod/_user_request_/s3"
+  # }
+
   HelloWorldFunction:
     Description: Hello World Lambda Function ARN
     Value: !GetAtt HelloWorldFunction.Arn
