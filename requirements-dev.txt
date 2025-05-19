@@ -5,3 +5,7 @@ flake8
 mypy
 pytest
 types-requests
+aws_lambda_typing
+boto3-stubs[s3,lambda,apigateway]==1.38.16
+botocore
+mypy_boto3_s3
