@@ -4,6 +4,7 @@ isort
 flake8
 mypy
 pytest
+pytest-cov
 types-requests
 aws_lambda_typing
 boto3-stubs[s3,lambda,apigateway]==1.38.16
