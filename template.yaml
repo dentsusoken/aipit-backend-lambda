@@ -73,6 +73,47 @@ Resources:
             Name: SampleEvent
             Schedule: 'rate(365 days)'
             State: ENABLED
+  # }
+
+  # SQS {
+  SampleQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      QueueName: sampleQueue.fifo
+      ContentBasedDeduplication: true
+
+  SQSRecieverFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "SQSRecieverFunction"
+      CodeUri: src/SQS
+      Handler: reciever.lambda_handler
+      Runtime: python3.13
+      Architectures:
+      - x86_64
+      Events:
+        SqsReciever:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SampleQueue.Arn
+
+  SQSSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "SQSSenderFunction"
+      CodeUri: src/SQS
+      Handler: sender.lambda_handler
+      Runtime: python3.13
+      Architectures:
+      - x86_64
+      Events:
+        SQSSender:
+          Type: Api
+          Properties:
+            Path: /sqs
+            Method: post
+  # }
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
