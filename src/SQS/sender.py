@@ -18,7 +18,7 @@ def lambda_handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaRes
 
     try:
         body = json.loads(event['body'])
-        message = body['mesage'] if 'message' in body else ''
+        message = body['message'] if 'message' in body else ''
 
     except Exception:
         message = 'hello world!'
