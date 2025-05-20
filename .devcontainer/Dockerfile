@@ -14,7 +14,7 @@ ENV LANGUAGE=en_US:en
 
 # 基本ツールとロケール設定
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends git curl unzip zip locales
+RUN apt-get install -y --no-install-recommends git curl unzip zip locales less
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 RUN locale-gen
 RUN echo 'LANG=en_US.UTF-8' > /etc/default/locale
