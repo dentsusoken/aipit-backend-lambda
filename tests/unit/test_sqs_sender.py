@@ -4,17 +4,22 @@ import requests
 from datetime import datetime, UTC
 from unittest.mock import Mock
 
-from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.events import APIGatewayProxyEventV1, SQSEvent
 
 from src.SQS import sender
 from src.SQS import reciever
 
 
 def test_sqs_sender() -> None:
+    object_name = 'test_sender.txt'
+
     event: APIGatewayProxyEventV1 = {
         "body": json.dumps(
             {
-                "message": f"Test at {datetime.now(UTC)}",
+                "messageBody": {
+                    "message": f"Test at {datetime.now(UTC)}",
+                    "object_name": f"{object_name}"
+                }
             }
         ),
         "resource": "/{proxy+}",
@@ -77,26 +82,29 @@ def test_sqs_sender() -> None:
     sender.lambda_handler(event, mock_context)
 
     # SQS の処理を待つ
-    time.sleep(2)
+    time.sleep(1)
 
-    s3_object = requests.get('http://localstack:4566/sample-bucket/sqs.txt')
+    s3_object = requests.get(f'http://localstack:4566/sample-bucket/{object_name}')
     print(s3_object)
     assert s3_object.json() == {"message": "This is sample"}
 
-    s3_object = requests.delete('http://localstack:4566/sample-bucket/sqs.txt')
+    s3_object = requests.delete(f'http://localstack:4566/sample-bucket/{object_name}')
 
 
 def test_sqs_reciever() -> None:
-    mock_event = Mock()
+    object_name = 'test_reciever.txt'
+
+    event: SQSEvent = {
+        "Records": [
+            {"body": json.dumps({"object_name": f"{object_name}"})}
+        ]
+    }
     mock_context = Mock()
 
-    reciever.lambda_handler(mock_event, mock_context)
+    reciever.lambda_handler(event, mock_context)
 
-    # SQS の処理を待つ
-    time.sleep(1)
-
-    s3_object = requests.get('http://localstack:4566/sample-bucket/sqs.txt')
+    s3_object = requests.get(f'http://localstack:4566/sample-bucket/{object_name}')
     print(s3_object)
     assert s3_object.json() == {"message": "This is sample"}
 
-    s3_object = requests.delete('http://localstack:4566/sample-bucket/sqs.txt')
+    s3_object = requests.delete(f'http://localstack:4566/sample-bucket/{object_name}')

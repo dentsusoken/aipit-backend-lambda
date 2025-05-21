@@ -18,10 +18,12 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaRes
 
     try:
         body = json.loads(event['body']) if event['body'] is not None else {}
-        message = body['message'] if 'message' in body else ''
+        messageBody = (
+            json.dumps(body["messageBody"]) if "messageBody" in body else "sample"
+        )
 
     except Exception:
-        message = 'hello world!'
+        messageBody = 'hello world!'
 
     try:
         # FIFO キューの URL を取得
@@ -31,7 +33,7 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaRes
         # メッセージ送信
         send_response = sqs.send_message(
             QueueUrl=queue_url,
-            MessageBody=message,
+            MessageBody=messageBody,
             MessageGroupId="sampleSQS"
         )
 
