@@ -2,21 +2,38 @@ import json
 from unittest.mock import Mock
 
 import pytest
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from src.hello_world import app
 
 
 @pytest.fixture()
-def apigw_event() -> APIGatewayProxyEventV2:
+def apigw_event() -> APIGatewayProxyEventV1:
     """Generates API GW Event"""
 
     return {
         "body": '{ "test": "body"}',
+        "resource": "/{proxy+}",
         "requestContext": {
+            "resourceId": "123456",
             "apiId": "1234567890",
+            "resourcePath": "/{proxy+}",
+            "httpMethod": "POST",
             "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
             "accountId": "123456789012",
+            "identity": {
+                "apiKey": "",
+                "userArn": "",
+                "cognitoAuthenticationType": "",
+                "caller": "",
+                "userAgent": "Custom User Agent String",
+                "user": "",
+                "cognitoIdentityPoolId": "",
+                "cognitoIdentityId": "",
+                "cognitoAuthenticationProvider": "",
+                "sourceIp": "127.0.0.1",
+                "accountId": "",
+            },
             "stage": "prod",
         },
         "queryStringParameters": {"foo": "bar"},
@@ -44,11 +61,16 @@ def apigw_event() -> APIGatewayProxyEventV2:
             "Accept-Encoding": "gzip, deflate, sdch",
         },
         "pathParameters": {"proxy": "/examplepath"},
+        "httpMethod": "POST",
         "stageVariables": {"baz": "qux"},
+        "path": "/examplepath",
+        "multiValueHeaders": {},
+        "multiValueQueryStringParameters": {},
+        "isBase64Encoded": False,
     }
 
 
-def test_lambda_handler(apigw_event: APIGatewayProxyEventV2) -> None:
+def test_lambda_handler(apigw_event: APIGatewayProxyEventV1) -> None:
     mock_context = Mock()
 
     ret = app.handler(apigw_event, mock_context)

@@ -4,24 +4,41 @@ from unittest.mock import Mock
 
 import pytest
 import requests
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from src.S3 import app
 
 
 @pytest.fixture()
 def apigw_event() -> (
-    Generator[Callable[[dict[str, Any]], APIGatewayProxyEventV2], None, None]
+    Generator[Callable[[dict[str, Any]], APIGatewayProxyEventV1], None, None]
 ):
     """ Generates API GW Event"""
 
-    def _apigw_event(body: dict[str, Any]) -> APIGatewayProxyEventV2:
+    def _apigw_event(body: dict[str, Any]) -> APIGatewayProxyEventV1:
         return {
             "body": json.dumps(body),
+            "resource": "/{proxy+}",
             "requestContext": {
+                "resourceId": "123456",
                 "apiId": "1234567890",
+                "resourcePath": "/{proxy+}",
+                "httpMethod": "POST",
                 "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
                 "accountId": "123456789012",
+                "identity": {
+                    "apiKey": "",
+                    "userArn": "",
+                    "cognitoAuthenticationType": "",
+                    "caller": "",
+                    "userAgent": "Custom User Agent String",
+                    "user": "",
+                    "cognitoIdentityPoolId": "",
+                    "cognitoIdentityId": "",
+                    "cognitoAuthenticationProvider": "",
+                    "sourceIp": "127.0.0.1",
+                    "accountId": "",
+                },
                 "stage": "prod",
             },
             "queryStringParameters": {"foo": "bar"},
@@ -53,7 +70,12 @@ def apigw_event() -> (
                 "Accept-Encoding": "gzip, deflate, sdch",
             },
             "pathParameters": {"proxy": "/examplepath"},
+            "httpMethod": "POST",
             "stageVariables": {"baz": "qux"},
+            "path": "/examplepath",
+            "multiValueHeaders": {},
+            "multiValueQueryStringParameters": {},
+            "isBase64Encoded": False,
         }
 
     yield _apigw_event
@@ -81,7 +103,7 @@ def apigw_event() -> (
     ]
 )
 def test_lambda_handler(
-    apigw_event: Callable[[dict[str, Any]], APIGatewayProxyEventV2],
+    apigw_event: Callable[[dict[str, Any]], APIGatewayProxyEventV1],
     body: dict[str, Any],
     expected_status: int,
     expected_data: str,

@@ -4,7 +4,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 from aws_lambda_typing.context import Context
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from modules.lambda_events import LambdaResponse
 from modules.get_response import get_response
@@ -16,7 +16,7 @@ from modules.constants import (
 )
 
 
-def lambda_handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaResponse:
+def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
     logging.info('start')
 
     try:
@@ -32,7 +32,7 @@ def lambda_handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaRes
     logging.info('create resource finish')
 
     try:
-        body = json.loads(event['body'])
+        body = json.loads(event['body']) if event['body'] is not None else {}
         bucket_name = body['bucket_name'] if 'bucket_name' in body else BUCKET_NAME
         object_name = body['object_name'] if 'object_name' in body else OBJECT_NAME
 

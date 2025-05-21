@@ -3,7 +3,7 @@ import boto3
 import logging
 
 from aws_lambda_typing.context import Context
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from modules.lambda_events import LambdaResponse
 
@@ -14,10 +14,10 @@ QUEUE_NAME = 'sampleQueue.fifo'
 sqs = boto3.client('sqs', region_name=REGION_NAME, endpoint_url=ENDPOINT_URL)
 
 
-def lambda_handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaResponse:
+def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
 
     try:
-        body = json.loads(event['body'])
+        body = json.loads(event['body']) if event['body'] is not None else {}
         message = body['message'] if 'message' in body else ''
 
     except Exception:

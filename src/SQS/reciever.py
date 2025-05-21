@@ -5,12 +5,12 @@ from typing import Any
 import boto3
 from botocore.exceptions import ClientError
 from aws_lambda_typing.context import Context
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from modules.lambda_events import LambdaResponse
 
 
-def lambda_handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaResponse:
+def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
     lambda_client = boto3.client('lambda')
 
     params: dict[str, Any] = {
