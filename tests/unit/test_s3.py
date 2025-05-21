@@ -91,7 +91,7 @@ def apigw_event() -> (
     ],
     [
         pytest.param(
-            {},
+            {"object_name": "test.txt"},
             200,
             "S3 hello world",
         ),

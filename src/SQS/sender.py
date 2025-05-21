@@ -4,8 +4,8 @@ import logging
 import boto3
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
-from modules.lambda_events import LambdaResponse
 
 REGION_NAME = "ap-northeast-1"
 ENDPOINT_URL = "http://localstack:4566"
@@ -14,7 +14,9 @@ QUEUE_NAME = "sampleQueue.fifo"
 sqs = boto3.client("sqs", region_name=REGION_NAME, endpoint_url=ENDPOINT_URL)
 
 
-def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: Context
+) -> APIGatewayProxyResponseV1:
 
     try:
         body = json.loads(event["body"]) if event["body"] is not None else {}

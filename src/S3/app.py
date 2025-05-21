@@ -4,15 +4,16 @@ import logging
 import boto3
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
 from modules.constants import (AWS_DEFAULT_REGION, AWS_ENDPOINT_URL,
                                BUCKET_NAME, OBJECT_NAME)
-from modules.get_response import get_response
-from modules.lambda_events import LambdaResponse
 
 
-def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: Context
+) -> APIGatewayProxyResponseV1:
     logging.info("start")
 
     try:
@@ -24,7 +25,14 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaRes
         message = "Can't create resource"
         logging.error(e)
 
-        return get_response(500, message)
+        return {
+            "statusCode": 500,
+            "body": json.dumps(
+                {
+                    "message": message,
+                }
+            ),
+        }
 
     logging.info("create resource finish")
 
@@ -37,7 +45,14 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaRes
         message = "The body must be in JSON format."
         logging.error(message)
 
-        return get_response(400, message)
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": message,
+                }
+            ),
+        }
 
     json_obj = {"message": "This is sample"}
 
@@ -49,8 +64,24 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaRes
         message = "Can't put a object"
         logging.error(e)
 
-        return get_response(500, message)
+        return {
+            "statusCode": 500,
+            "body": json.dumps(
+                {
+                    "message": message,
+                }
+            ),
+        }
 
     logging.info("put object finish")
 
-    return get_response(200, "S3 hello world")
+    message = "S3 hello world"
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": message,
+            }
+        ),
+    }

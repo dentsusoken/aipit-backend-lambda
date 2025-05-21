@@ -7,10 +7,8 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from botocore.exceptions import ClientError
 
-from modules.lambda_events import LambdaResponse
 
-
-def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
+def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> None:
     lambda_client = boto3.client("lambda")
 
     params: dict[str, Any] = {

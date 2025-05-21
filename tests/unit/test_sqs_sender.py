@@ -81,10 +81,9 @@ def test_sqs_sender() -> None:
     sender.lambda_handler(event, mock_context)
 
     # SQS の処理を待つ
-    time.sleep(1)
+    time.sleep(5)
 
     s3_object = requests.get(f"http://localstack:4566/sample-bucket/{object_name}")
-    print(s3_object)
     assert s3_object.json() == {"message": "This is sample"}
 
     s3_object = requests.delete(f"http://localstack:4566/sample-bucket/{object_name}")
