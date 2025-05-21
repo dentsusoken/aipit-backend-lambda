@@ -13,7 +13,7 @@ from src.S3 import app
 def apigw_event() -> (
     Generator[Callable[[dict[str, Any]], APIGatewayProxyEventV1], None, None]
 ):
-    """ Generates API GW Event"""
+    """Generates API GW Event"""
 
     def _apigw_event(body: dict[str, Any]) -> APIGatewayProxyEventV1:
         return {
@@ -80,27 +80,27 @@ def apigw_event() -> (
 
     yield _apigw_event
 
-    requests.delete('http://localstack:4566/sample-bucket/test.txt')
+    requests.delete("http://localstack:4566/sample-bucket/test.txt")
 
 
 @pytest.mark.parametrize(
     [
-        'body',
-        'expected_status',
-        'expected_data',
+        "body",
+        "expected_status",
+        "expected_data",
     ],
     [
         pytest.param(
             {},
             200,
-            'S3 hello world',
+            "S3 hello world",
         ),
         pytest.param(
             None,
             400,
-            'The body must be in JSON format.',
+            "The body must be in JSON format.",
         ),
-    ]
+    ],
 )
 def test_lambda_handler(
     apigw_event: Callable[[dict[str, Any]], APIGatewayProxyEventV1],

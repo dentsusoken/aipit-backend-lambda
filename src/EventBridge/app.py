@@ -11,19 +11,17 @@ from modules.lambda_events import LambdaResponse
 
 
 def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> LambdaResponse:
-    lambda_client = boto3.client('lambda')
+    lambda_client = boto3.client("lambda")
 
     params: dict[str, Any] = {
-        'FunctionName': 'PutS3ObjectFunction',
-        'Payload': json.dumps({
-            'body': json.dumps({
-                'object_name': 'event_bridge.txt'
-            })
-        })
+        "FunctionName": "PutS3ObjectFunction",
+        "Payload": json.dumps(
+            {"body": json.dumps({"object_name": "event_bridge.txt"})}
+        ),
     }
 
     try:
         response = lambda_client.invoke(**params)
-        logging.info('Invocation response:', response)
+        logging.info("Invocation response:", response)
     except ClientError as e:
-        logging.error(f'Error invoking Lambda: {e}')
+        logging.error(f"Error invoking Lambda: {e}")
