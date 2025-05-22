@@ -23,3 +23,10 @@ repos:
     entry: mypy
     language: system
     types: [python]
+
+  - id: pytest
+    name: pytest
+    entry: bash -c "pytest"
+    language: system
+    stages: [pre-push]
+    always_run: true
