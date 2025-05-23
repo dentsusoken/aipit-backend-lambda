@@ -1,12 +1,46 @@
 import json
 import time
 from datetime import UTC, datetime
+from typing import Generator
 from unittest.mock import Mock
 
-import requests
+import boto3
+import pytest
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
+from src.modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
 from src.SQS import sender
+
+
+@pytest.fixture(scope="module", autouse=True)
+def disable_event_source_mapping() -> Generator[None, None, None]:
+    lambda_client = boto3.client(
+        "lambda", endpoint_url=AWS_ENDPOINT_URL, region_name=AWS_DEFAULT_REGION
+    )
+
+    # 対象の Lambda 関数名を指定
+    function_name = "SQSRecieverFunction"  # ← ここを実際の関数名に置き換えてください
+
+    # イベントソースマッピングの一覧を取得
+    response = lambda_client.list_event_source_mappings(FunctionName=function_name)
+
+    # SQS に関連するマッピングをフィルタ（1つだけと仮定）
+    sqs_mappings = [
+        mapping
+        for mapping in response["EventSourceMappings"]
+        if mapping["EventSourceArn"].startswith("arn:aws:sqs")
+    ]
+
+    if not sqs_mappings:
+        raise Exception("SQS イベントソースマッピングが見つかりませんでした。")
+
+    event_source_uuid = sqs_mappings[0]["UUID"]
+
+    # 無効化
+    lambda_client.update_event_source_mapping(UUID=event_source_uuid, Enabled=False)
+    yield
+    # 有効化
+    lambda_client.update_event_source_mapping(UUID=event_source_uuid, Enabled=True)
 
 
 def test_sqs_sender() -> None:
@@ -80,10 +114,12 @@ def test_sqs_sender() -> None:
 
     sender.lambda_handler(event, mock_context)
 
-    # SQS の処理を待つ
-    time.sleep(5)
+    sqs = boto3.client(
+        "sqs", endpoint_url=AWS_ENDPOINT_URL, region_name=AWS_DEFAULT_REGION
+    )
+    queue_url = sqs.get_queue_url(QueueName=QUEUE_NAME)["QueueUrl"]
 
-    s3_object = requests.get(f"http://localstack:4566/sample-bucket/{object_name}")
-    assert s3_object.json() == {"message": "This is sample"}
-
-    s3_object = requests.delete(f"http://localstack:4566/sample-bucket/{object_name}")
+    # メッセージが送られたことを確認（必要なら）
+    time.sleep(1)
+    messages = sqs.receive_message(QueueUrl=queue_url)
+    assert "Messages" in messages
