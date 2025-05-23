@@ -1,0 +1,36 @@
+name: Automatically deploy the develop branch to AWS
+
+on:
+  push:
+    branches:
+      - 'develop'
+
+env:
+  REGION: ap-northeast-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  build-and-package:
+    # develop ブランチがPR 経由でマージされたとき
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build resources
+        run: sam build --use-container
+
+      - name: Authenticate to AWS with access keys
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Deploy to develop account
+        run: |
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
