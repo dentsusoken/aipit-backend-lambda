@@ -6,11 +6,9 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
-REGION_NAME = "ap-northeast-1"
-ENDPOINT_URL = "http://localstack:4566"
-QUEUE_NAME = "sampleQueue.fifo"
+from src.modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
 
-sqs = boto3.client("sqs", region_name=REGION_NAME, endpoint_url=ENDPOINT_URL)
+sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
 
 
 def lambda_handler(
