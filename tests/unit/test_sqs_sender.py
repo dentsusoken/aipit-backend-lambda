@@ -1,5 +1,4 @@
 import json
-import time
 from datetime import UTC, datetime
 from typing import Generator
 from unittest.mock import Mock
@@ -7,6 +6,8 @@ from unittest.mock import Mock
 import boto3
 import pytest
 from aws_lambda_typing.events import APIGatewayProxyEventV1
+from mypy_boto3_sqs import SQSClient
+from mypy_boto3_sqs.type_defs import MessageTypeDef
 
 from src.modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
 from src.SQS import sender
@@ -41,6 +42,17 @@ def disable_event_source_mapping() -> Generator[None, None, None]:
     yield
     # 有効化
     lambda_client.update_event_source_mapping(UUID=event_source_uuid, Enabled=True)
+
+
+def receive_message_with_retry(sqs: SQSClient, queue_url: str) -> MessageTypeDef:
+    for _ in range(5):
+        response = sqs.receive_message(
+            QueueUrl=queue_url, WaitTimeSeconds=10, MaxNumberOfMessages=1
+        )
+        if "Messages" in response:
+            return response["Messages"][0]
+
+    raise TimeoutError("メッセージの取得に失敗しました")
 
 
 def test_sqs_sender() -> None:
@@ -113,13 +125,12 @@ def test_sqs_sender() -> None:
     mock_context = Mock()
 
     sender.lambda_handler(event, mock_context)
-
     sqs = boto3.client(
         "sqs", endpoint_url=AWS_ENDPOINT_URL, region_name=AWS_DEFAULT_REGION
     )
     queue_url = sqs.get_queue_url(QueueName=QUEUE_NAME)["QueueUrl"]
 
-    # メッセージが送られたことを確認（必要なら）
-    time.sleep(1)
-    messages = sqs.receive_message(QueueUrl=queue_url)
-    assert "Messages" in messages
+    message = receive_message_with_retry(sqs, queue_url)
+    assert "Body" in message
+
+    sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"])
