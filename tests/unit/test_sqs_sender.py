@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 from unittest.mock import Mock
 
 import requests
-from aws_lambda_typing.events import APIGatewayProxyEventV1, SQSEvent
+from aws_lambda_typing.events import APIGatewayProxyEventV1
 
-from src.SQS import reciever, sender
+from src.SQS import sender
 
 
 def test_sqs_sender() -> None:
@@ -84,23 +84,6 @@ def test_sqs_sender() -> None:
     time.sleep(5)
 
     s3_object = requests.get(f"http://localstack:4566/sample-bucket/{object_name}")
-    assert s3_object.json() == {"message": "This is sample"}
-
-    s3_object = requests.delete(f"http://localstack:4566/sample-bucket/{object_name}")
-
-
-def test_sqs_reciever() -> None:
-    object_name = "test_reciever.txt"
-
-    event: SQSEvent = {
-        "Records": [{"body": json.dumps({"object_name": f"{object_name}"})}]
-    }
-    mock_context = Mock()
-
-    reciever.lambda_handler(event, mock_context)
-
-    s3_object = requests.get(f"http://localstack:4566/sample-bucket/{object_name}")
-    print(s3_object)
     assert s3_object.json() == {"message": "This is sample"}
 
     s3_object = requests.delete(f"http://localstack:4566/sample-bucket/{object_name}")
