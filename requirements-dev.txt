@@ -11,4 +11,5 @@ aws_lambda_typing
 boto3-stubs[s3,lambda,apigateway]==1.38.16
 botocore
 mypy_boto3_s3
+mypy_boto3_sqs
 requests
