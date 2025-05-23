@@ -6,7 +6,6 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
-
 REGION_NAME = "ap-northeast-1"
 ENDPOINT_URL = "http://localstack:4566"
 QUEUE_NAME = "sampleQueue.fifo"
