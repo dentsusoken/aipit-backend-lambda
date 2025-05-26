@@ -7,8 +7,12 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-from modules.constants import (AWS_DEFAULT_REGION, AWS_ENDPOINT_URL,
-                               BUCKET_NAME, OBJECT_NAME)
+from modules.constants import (
+    AWS_DEFAULT_REGION,
+    AWS_ENDPOINT_URL,
+    BUCKET_NAME,
+    OBJECT_NAME,
+)
 
 
 def lambda_handler(

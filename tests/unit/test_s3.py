@@ -6,7 +6,7 @@ import pytest
 import requests
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
-from src.S3 import app
+from src.S3_v1 import app
 
 
 @pytest.fixture()

@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import requests
 
-from src.EventBridge import app
+from src.EventBridge_v1 import app
 
 
 def test_lambda_handler() -> None:

@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
-from src.hello_world import app
+from src.hello_world_v1 import app
 
 
 @pytest.fixture()

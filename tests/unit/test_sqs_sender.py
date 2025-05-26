@@ -10,7 +10,7 @@ from mypy_boto3_sqs import SQSClient
 from mypy_boto3_sqs.type_defs import MessageTypeDef
 
 from src.modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
-from src.SQS import sender
+from src.SQS_v1 import sender
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -20,7 +20,7 @@ def disable_event_source_mapping() -> Generator[None, None, None]:
     )
 
     # 対象の Lambda 関数名を指定
-    function_name = "SQSRecieverFunction"  # ← ここを実際の関数名に置き換えてください
+    function_name = "SQSRecieverV1Function"  # ← ここを実際の関数名に置き換えてください
 
     # イベントソースマッピングの一覧を取得
     response = lambda_client.list_event_source_mappings(FunctionName=function_name)

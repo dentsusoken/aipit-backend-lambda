@@ -12,7 +12,7 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> None:
     lambda_client = boto3.client("lambda")
 
     params: dict[str, Any] = {
-        "FunctionName": "PutS3ObjectFunction",
+        "FunctionName": "PutS3ObjectV1Function",
         "Payload": json.dumps(
             {"body": json.dumps({"object_name": "event_bridge.txt"})}
         ),

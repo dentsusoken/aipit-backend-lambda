@@ -40,12 +40,12 @@ Resources:
   #     Name: LambdaV2Api
   #     StageName: !Ref LambdaV2  # ← ここがデフォルトステージ名になる
 
-  HelloWorldFunction:
+  HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      FunctionName: HelloWoorldFunction
+      FunctionName: HelloWoorldV1Function
       AutoPublishAlias: v1
-      CodeUri: src/hello_world/
+      CodeUri: src/hello_world_v1/
       Handler: app.handler
       Runtime: python3.13
       Architectures:
@@ -65,12 +65,12 @@ Resources:
     Properties:
       BucketName: sample-bucket
 
-  PutS3ObjectFunction:
+  PutS3ObjectV1Function:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PutS3ObjectFunction
+      FunctionName: PutS3ObjectV1Function
       AutoPublishAlias: v1
-      CodeUri: src/S3
+      CodeUri: src/S3_v1
       Handler: app.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -85,12 +85,12 @@ Resources:
   # }
 
   # EventBridge
-  EventBridgeFunction:
+  EventBridgeV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      FunctionName: "EventBridgeFunction"
+      FunctionName: "EventBridgeV1Function"
       AutoPublishAlias: v1
-      CodeUri: src/EventBridge
+      CodeUri: src/EventBridge_v1
       Handler: app.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -112,12 +112,12 @@ Resources:
       QueueName: sampleQueue.fifo
       ContentBasedDeduplication: true
 
-  SQSRecieverFunction:
+  SQSRecieverV1Function:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "SQSRecieverFunction"
+      FunctionName: "SQSRecieverV1Function"
       AutoPublishAlias: v1
-      CodeUri: src/SQS
+      CodeUri: src/SQS_v1
       Handler: reciever.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -128,12 +128,12 @@ Resources:
           Properties:
             Queue: !GetAtt SampleQueue.Arn
 
-  SQSSenderFunction:
+  SQSSenderV1Function:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "SQSSenderFunction"
+      FunctionName: "SQSSenderV1Function"
       AutoPublishAlias: v1
-      CodeUri: src/SQS
+      CodeUri: src/SQS_v1
       Handler: sender.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -151,25 +151,25 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
+  HelloWorldV1Api:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub "https://${LambdaV1Api}.execute-api.${AWS::Region}.amazonaws.com/${LambdaV1}/hello/"
-  PutS3ObjectApi:
+  PutS3ObjectV1Api:
     Description: S3 オブジェクト追加用API
     Value: !Sub "https://${LambdaV1Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/s3/"
 
   # LocalStack 用API {
-  LocalStackHelloWorldApi:
+  LocalStackHelloWorldV1Api:
     Description: API Gateway endpoint URL for Prod stage for Hello World function in LocalStack
     Value: !Sub "http://localstack:4566/restapis/${LambdaV1Api}/${LambdaV1}/_user_request_/hello"
-  LocalStackPutS3ObjectApi:
+  LocalStackPutS3ObjectV1Api:
     Description: LocalStack でのS3 オブジェクト追加用API
     Value: !Sub "http://localstack:4566/restapis/${LambdaV1Api}/${LambdaV1}/_user_request_/s3"
   # }
 
-  HelloWorldFunction:
+  HelloWorldV1Function:
     Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
+    Value: !GetAtt HelloWorldV1Function.Arn
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt HelloWorldV1FunctionRole.Arn

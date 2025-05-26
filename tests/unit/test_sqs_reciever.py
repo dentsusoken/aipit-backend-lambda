@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import requests
 from aws_lambda_typing.events import SQSEvent
 
-from src.SQS import reciever
+from src.SQS_v1 import reciever
 
 
 def test_sqs_reciever() -> None:
