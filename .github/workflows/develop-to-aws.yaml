@@ -15,6 +15,7 @@ jobs:
     # develop ブランチがPR 経由でマージされたとき
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop'
     runs-on: ubuntu-latest
+    environment: DEV
     steps:
       - uses: actions/checkout@v3
       - uses: aws-actions/setup-sam@v2
