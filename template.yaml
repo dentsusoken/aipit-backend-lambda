@@ -43,7 +43,7 @@ Resources:
   HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      FunctionName: HelloWoorldV1Function
+      FunctionName: HelloWorldV1Function
       AutoPublishAlias: v1
       CodeUri: src/hello_world_v1/
       Handler: app.handler
