@@ -42,7 +42,6 @@ def lambda_handler(
 
     try:
         body = json.loads(event["body"]) if event["body"] is not None else {}
-        bucket_name = body["bucket_name"] if "bucket_name" in body else BUCKET_NAME
         object_name = body["object_name"] if "object_name" in body else OBJECT_NAME
 
     except Exception:
@@ -61,7 +60,7 @@ def lambda_handler(
     json_obj = {"message": "This is sample"}
 
     try:
-        s3_obj = s3_resource.Object(bucket_name, object_name)
+        s3_obj = s3_resource.Object(BUCKET_NAME, object_name)
         s3_obj.put(Body=json.dumps(json_obj))
 
     except ClientError as e:
