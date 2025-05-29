@@ -29,7 +29,7 @@ services:
       - no_proxy
       - NO_PROXY
   localstack:
-    image: localstack/localstack:4.4
+    image: localstack/localstack-pro:4.4
     ports:
       - "4566:4566"
     environment:
@@ -40,6 +40,7 @@ services:
       - AWS_DEFAULT_REGION
       - LAMBDA_EXECUTOR=local
       - DATA_DIR=/var/lib/localstack
+      - LOCALSTACK_AUTH_TOKEN
 
       - http_proxy
       - HTTP_PROXY
