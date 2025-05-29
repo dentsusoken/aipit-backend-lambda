@@ -32,6 +32,7 @@ Resources:
     Properties:
       Name: LambdaV1Api
       StageName: !Ref LambdaV1  # ← ここがデフォルトステージ名になる
+      # DefinitionUri: openapi.yml
 
   # V2 用
   # LambdaV2Api:

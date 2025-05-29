@@ -1,0 +1,184 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  # Lambda V1
+  - url: https://{LambdaV1Api}.execute-api.{Region}.amazonaws.com/v1/
+    description: AWS (Lambda V1)
+    variables:
+      LambdaV1Api:
+        default: abcdef123456
+      Region:
+        default: ap-northeast-1
+  - url: http://localstack:4566/restapis/{LambdaV1Api}/v1/_user_request_/
+    description: LocalStack (Lambda V1)
+    variables:
+      LambdaV1Api:
+        default: abcdef123456
+  # Lambda V2
+  # - url: https://{LambdaV1Api}.execute-api.{Region}.amazonaws.com/v1/
+  #   description: AWS (Lambda V1)
+  #   variables:
+  #     LambdaV1Api:
+  #       default: abcdef123456
+  #     Region:
+  #       default: ap-northeast-1
+  # - url: http://localstack:4566/restapis/{LambdaV1Api}/v1/_user_request_/
+  #   description: LocalStack (Lambda V1)
+  #   variables:
+  #     LambdaV1Api:
+  #       default: abcdef123456
+
+paths:
+  /hello:
+    get:
+      responses:
+        '200':
+          description: HelloWorld 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HelloResponse"
+        '500':
+          description: 内部処理の失敗
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalError"
+  /s3:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/S3Request"
+            examples:
+              sample1:
+                value:
+                  object_name: sample.txt
+              sample2:
+                value:
+                  object_name: sample.txt
+              sample3:
+                value: {}
+      responses:
+        '200':
+          description: S3 オブジェクトの作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/S3Response"
+        '400':
+          description: Request Body がJSON ではない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidJsonBodyError"
+        '500':
+          description: 内部処理の失敗
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalError"
+  /sqs:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SqsRequest"
+            examples:
+              sample1:
+                value:
+                  messageBody:
+                    object_name: sample.txt
+              sample2:
+                value:
+                  messageBody:
+                    object_name: sample.txt
+              sample3:
+                value: {}
+      responses:
+        '200':
+          description: SQS メッセージ送信成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/S3Response"
+        '400':
+          description: Request Body がJSON ではない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidJsonBodyError"
+        '500':
+          description: 内部処理の失敗
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalError"
+
+components:
+  schemas:
+    HelloResponse:
+      title: Hello World 正常応答
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - hello world
+    SqsRequest:
+      title: sqs リクエストボディ
+      type: object
+      properties:
+        messageBody:
+          type: object
+          properties:
+            object_name:
+              $ref: "#/components/schemas/object_name"
+    SqsResponse:
+      title: SQS 正常応答
+      type: object
+      properties:
+        message:
+          type: string
+          example: sent 12345-abcde-67890-fghij
+    S3Request:
+      title: s3 リクエストボディ
+      type: object
+      properties:
+        object_name:
+          $ref: "#/components/schemas/object_name"
+    S3Response:
+      title: S3 正常応答
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - S3 hello world
+    InvalidJsonBodyError:
+      title: リクエストボディは JSON 形式である必要があります
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - The body must be in JSON format.
+    InternalError:
+      title: 内部処理に失敗しました
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - Can't create resource
+            - Can't put a object
+            - some error happend
+    # S3 用
+    object_name:
+      title: S3 オブジェクト
+      type: string
+      example: sample.txt
