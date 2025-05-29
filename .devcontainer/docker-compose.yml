@@ -4,6 +4,13 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      args:
+        http_proxy: ${http_proxy}
+        HTTP_PROXY: ${HTTP_PROXY}
+        https_proxy: ${https_proxy}
+        HTTPS_PROXY: ${HTTPS_PROXY}
+        no_proxy: ${no_proxy}
+        NO_PROXY: ${NO_PROXY}
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
@@ -15,6 +22,12 @@ services:
       - AWS_DEFAULT_REGION
       - AWS_ENDPOINT_URL
 
+      - http_proxy
+      - HTTP_PROXY
+      - https_proxy
+      - HTTPS_PROXY
+      - no_proxy
+      - NO_PROXY
   localstack:
     image: localstack/localstack:4.4
     ports:
@@ -27,6 +40,13 @@ services:
       - AWS_DEFAULT_REGION
       - LAMBDA_EXECUTOR=local
       - DATA_DIR=/var/lib/localstack
+
+      - http_proxy
+      - HTTP_PROXY
+      - https_proxy
+      - HTTPS_PROXY
+      - no_proxy
+      - NO_PROXY
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - localstack_data:/var/lib/localstack

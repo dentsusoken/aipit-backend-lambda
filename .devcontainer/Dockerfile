@@ -5,12 +5,12 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 
 # プロキシ設定
-# ENV http_proxy="http://your-proxy"
-# ENV HTTP_PROXY="http://your-proxy"
-# ENV https_proxy="http://your-proxy"
-# ENV HTTPS_PROXY="http://your-proxy"
-# ENV no_proxy="localhost,localhost.localstack.cloud,127.0.0.1,[::1],localstack"
-# ENV NO_PROXY="localhost,localhost.localstack.cloud,127.0.0.1,[::1],localstack"
+ENV http_proxy=${http_proxy}
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV https_proxy=${https_proxy}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV no_proxy=${no_proxy}
+ENV NO_PROXY=${NO_PROXY}
 
 # 基本ツールとロケール設定
 RUN apt-get update
