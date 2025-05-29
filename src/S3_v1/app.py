@@ -1,7 +1,7 @@
 import json
-import logging
 
 import boto3
+from aws_lambda_powertools import Logger
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -14,11 +14,13 @@ from modules.constants import (
     OBJECT_NAME,
 )
 
+logger = Logger(service="HelloWorldService")
+
 
 def lambda_handler(
     event: APIGatewayProxyEventV1, context: Context
 ) -> APIGatewayProxyResponseV1:
-    logging.info("start")
+    logger.info("start")
 
     try:
         s3_resource = boto3.resource(
@@ -27,7 +29,7 @@ def lambda_handler(
 
     except ClientError as e:
         message = "Can't create resource"
-        logging.error(e)
+        logger.error(e)
 
         return {
             "statusCode": 500,
@@ -38,7 +40,7 @@ def lambda_handler(
             ),
         }
 
-    logging.info("create resource finish")
+    logger.info("create resource finish")
 
     try:
         body = json.loads(event["body"]) if event["body"] is not None else {}
@@ -46,7 +48,7 @@ def lambda_handler(
 
     except Exception:
         message = "The body must be in JSON format."
-        logging.error(message)
+        logger.error(message)
 
         return {
             "statusCode": 400,
@@ -65,7 +67,7 @@ def lambda_handler(
 
     except ClientError as e:
         message = "Can't put a object"
-        logging.error(e)
+        logger.error(e)
 
         return {
             "statusCode": 500,
@@ -76,7 +78,7 @@ def lambda_handler(
             ),
         }
 
-    logging.info("put object finish")
+    logger.info("put object finish")
 
     message = "S3 hello world"
 

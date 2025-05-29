@@ -1,7 +1,7 @@
 import json
-import logging
 
 import boto3
+from aws_lambda_powertools import Logger
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -9,6 +9,7 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
 
 sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
+logger = Logger(service="HelloWorldService")
 
 
 def lambda_handler(
@@ -40,7 +41,7 @@ def lambda_handler(
         }
 
     except Exception as e:
-        logging.error(str(e))
+        logger.error(str(e))
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "some error happened"}),

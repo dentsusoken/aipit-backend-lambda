@@ -1,11 +1,13 @@
 import json
-import logging
 from typing import Any
 
 import boto3
+from aws_lambda_powertools import Logger
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from botocore.exceptions import ClientError
+
+logger = Logger(service="HelloWorldService")
 
 
 def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> None:
@@ -20,6 +22,6 @@ def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> None:
 
     try:
         response = lambda_client.invoke(**params)
-        logging.info("Invocation response:", response)
+        logger.info("Invocation response:", response)
     except ClientError as e:
-        logging.error(f"Error invoking Lambda: {e}")
+        logger.error(f"Error invoking Lambda: {e}")
