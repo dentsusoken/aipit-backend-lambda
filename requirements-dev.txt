@@ -14,3 +14,4 @@ botocore
 mypy_boto3_s3
 mypy_boto3_sqs
 requests
+aws-lambda-powertools

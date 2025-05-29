@@ -41,6 +41,18 @@ Resources:
   #     Name: LambdaV2Api
   #     StageName: !Ref LambdaV2  # ← ここがデフォルトステージ名になる
 
+  # Lambda レイヤー
+  PowertoolsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: PowertoolsLayer
+      ContentUri: layers/powertools
+      CompatibleRuntimes:
+        - python3.13
+    Metadata:
+      BuildMethod: python3.13
+      BuildArchitecture: arm64
+
   HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -49,6 +61,8 @@ Resources:
       CodeUri: src/hello_world_v1/
       Handler: app.handler
       Runtime: python3.13
+      Layers:
+        - !Ref PowertoolsLayer
       Architectures:
       - x86_64
       Events:
@@ -74,6 +88,8 @@ Resources:
       CodeUri: src/S3_v1
       Handler: app.lambda_handler
       Runtime: python3.13
+      Layers:
+        - !Ref PowertoolsLayer
       Architectures:
         - x86_64
       Events:
@@ -94,6 +110,8 @@ Resources:
       CodeUri: src/EventBridge_v1
       Handler: app.lambda_handler
       Runtime: python3.13
+      Layers:
+        - !Ref PowertoolsLayer
       Architectures:
       - x86_64
       Events:
@@ -121,6 +139,8 @@ Resources:
       CodeUri: src/SQS_v1
       Handler: reciever.lambda_handler
       Runtime: python3.13
+      Layers:
+        - !Ref PowertoolsLayer
       Architectures:
       - x86_64
       Events:
@@ -137,6 +157,8 @@ Resources:
       CodeUri: src/SQS_v1
       Handler: sender.lambda_handler
       Runtime: python3.13
+      Layers:
+        - !Ref PowertoolsLayer
       Architectures:
       - x86_64
       Events:
