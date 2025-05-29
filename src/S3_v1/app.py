@@ -42,7 +42,7 @@ def lambda_handler(
 
     try:
         body = json.loads(event["body"]) if event["body"] is not None else {}
-        object_name = body["object_name"] if "object_name" in body else OBJECT_NAME
+        object_name = body.get("object_name") or OBJECT_NAME
 
     except Exception:
         message = "The body must be in JSON format."
