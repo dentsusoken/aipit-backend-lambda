@@ -1,9 +1,8 @@
 name: Automatically deploy the develop branch to AWS
 
 on:
-  push:
-    branches:
-      - 'develop'
+  pull_request:
+    types: [closed]
 
 env:
   REGION: ap-northeast-1
