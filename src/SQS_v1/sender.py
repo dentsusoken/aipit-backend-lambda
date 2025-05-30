@@ -1,4 +1,5 @@
 import json
+import os
 
 import boto3
 from aws_lambda_powertools import Logger
@@ -6,8 +7,9 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
-from modules.constants import AWS_DEFAULT_REGION, AWS_ENDPOINT_URL, QUEUE_NAME
-
+AWS_DEFAULT_REGION = os.environ["AWS_DEFAULT_REGION"]
+AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
+QUEUE_NAME = os.environ["QUEUE_NAME"]
 sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
 logger = Logger(service="HelloWorldService")
 

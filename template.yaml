@@ -14,6 +14,13 @@ Globals:
     # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
     LoggingConfig:
       LogFormat: JSON
+
+    Environment:
+      Variables:
+        BUCKET_NAME: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
+        OBJECT_NAME: sample.txt
+        QUEUE_NAME: sampleQueue.fifo
+
   Api:
     TracingEnabled: true
 
@@ -51,7 +58,7 @@ Resources:
         - python3.13
     Metadata:
       BuildMethod: python3.13
-      BuildArchitecture: arm64
+      BuildArchitecture: x86_64
 
   HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

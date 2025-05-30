@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Any, Callable, Generator
 from unittest.mock import Mock
 
@@ -6,8 +7,9 @@ import pytest
 import requests
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
-from src.modules.constants import BUCKET_NAME
 from src.S3_v1 import app
+
+BUCKET_NAME = os.environ["BUCKET_NAME"]
 
 
 @pytest.fixture()

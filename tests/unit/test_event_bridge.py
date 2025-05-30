@@ -1,9 +1,11 @@
+import os
 from unittest.mock import Mock
 
 import requests
 
 from src.EventBridge_v1 import app
-from src.modules.constants import BUCKET_NAME
+
+BUCKET_NAME = os.environ["BUCKET_NAME"]
 
 
 def test_lambda_handler() -> None:

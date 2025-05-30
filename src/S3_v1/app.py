@@ -1,4 +1,5 @@
 import json
+import os
 
 import boto3
 from aws_lambda_powertools import Logger
@@ -7,13 +8,10 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-from modules.constants import (
-    AWS_DEFAULT_REGION,
-    AWS_ENDPOINT_URL,
-    BUCKET_NAME,
-    OBJECT_NAME,
-)
-
+AWS_DEFAULT_REGION = os.environ["AWS_DEFAULT_REGION"]
+AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
+BUCKET_NAME = os.environ["BUCKET_NAME"]
+OBJECT_NAME = os.environ["OBJECT_NAME"]
 logger = Logger(service="HelloWorldService")
 
 
