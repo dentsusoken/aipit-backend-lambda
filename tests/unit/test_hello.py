@@ -1,23 +1,23 @@
 import json
+from typing import Any, Dict
 from unittest.mock import Mock
 
 import pytest
-from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from src.hello_world_v1 import app
 
 
 @pytest.fixture()
-def apigw_event() -> APIGatewayProxyEventV1:
+def apigw_event() -> Dict[str, Any]:
     """Generates API GW Event"""
 
     return {
         "body": '{ "test": "body"}',
-        "resource": "/{proxy+}",
+        "resource": "/hello",
         "requestContext": {
             "resourceId": "123456",
             "apiId": "1234567890",
-            "resourcePath": "/{proxy+}",
+            "resourcePath": "/hello",
             "httpMethod": "POST",
             "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
             "accountId": "123456789012",
@@ -60,17 +60,17 @@ def apigw_event() -> APIGatewayProxyEventV1:
             "CloudFront-Forwarded-Proto": "https",
             "Accept-Encoding": "gzip, deflate, sdch",
         },
-        "pathParameters": {"proxy": "/examplepath"},
-        "httpMethod": "POST",
+        "pathParameters": {"proxy": "/hello"},
+        "httpMethod": "GET",
         "stageVariables": {"baz": "qux"},
-        "path": "/examplepath",
+        "path": "/hello",
         "multiValueHeaders": {},
         "multiValueQueryStringParameters": {},
         "isBase64Encoded": False,
     }
 
 
-def test_lambda_handler(apigw_event: APIGatewayProxyEventV1) -> None:
+def test_lambda_handler(apigw_event: Dict[str, Any]) -> None:
     mock_context = Mock()
 
     ret = app.handler(apigw_event, mock_context)

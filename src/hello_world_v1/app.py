@@ -1,17 +1,18 @@
-from aws_lambda_powertools import Logger
-from aws_lambda_typing.context import Context
-from aws_lambda_typing.events import APIGatewayProxyEventV1
-from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from typing import Any, Dict
 
+from aws_lambda_powertools import Logger
+from aws_lambda_powertools.event_handler import ApiGatewayResolver
+from aws_lambda_powertools.utilities.typing import LambdaContext
+
+app = ApiGatewayResolver()
 logger = Logger(service="HelloWorldService")
 
 
-def handler(
-    event: APIGatewayProxyEventV1, context: Context
-) -> APIGatewayProxyResponseV1:
+@app.get("/hello")
+def hello() -> Dict[str, str]:
+    return {"message": "hello world"}
+
+
+def handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     logger.info("Hello Layer")
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": '{"message": "hello world"}',
-    }
+    return app.resolve(event=event, context=context)
