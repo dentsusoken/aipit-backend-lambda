@@ -6,6 +6,7 @@ import pytest
 import requests
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
+from src.modules.constants import BUCKET_NAME
 from src.S3_v1 import app
 
 
@@ -80,7 +81,7 @@ def apigw_event() -> (
 
     yield _apigw_event
 
-    requests.delete("http://localstack:4566/sample-bucket/test.txt")
+    requests.delete(f"http://localstack:4566/{BUCKET_NAME}/test.txt")
 
 
 @pytest.mark.parametrize(
