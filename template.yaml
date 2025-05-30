@@ -78,7 +78,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
-      BucketName: sample-bucket
+      BucketName: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
 
   PutS3ObjectV1Function:
     Type: AWS::Serverless::Function
