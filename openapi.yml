@@ -137,7 +137,7 @@ components:
           type: object
           properties:
             object_name:
-              $ref: "#/components/schemas/object_name"
+              $ref: "#/components/schemas/ObjectName"
     SqsResponse:
       title: SQS 正常応答
       type: object
@@ -150,7 +150,7 @@ components:
       type: object
       properties:
         object_name:
-          $ref: "#/components/schemas/object_name"
+          $ref: "#/components/schemas/ObjectName"
     S3Response:
       title: S3 正常応答
       type: object
