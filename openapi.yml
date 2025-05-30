@@ -178,7 +178,7 @@ components:
             - Can't put a object
             - some error happend
     # S3 用
-    object_name:
+    ObjectName:
       title: S3 オブジェクト
       type: string
       example: sample.txt
