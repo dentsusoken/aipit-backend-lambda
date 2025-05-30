@@ -11,11 +11,11 @@ servers:
         default: abcdef123456
       Region:
         default: ap-northeast-1
-  - url: http://localstack:4566/restapis/{LambdaV1Api}/v1/_user_request_/
-    description: LocalStack (Lambda V1)
-    variables:
-      LambdaV1Api:
-        default: abcdef123456
+  # - url: http://localstack:4566/restapis/{LambdaV1Api}/v1/_user_request_/
+  #   description: LocalStack (Lambda V1)
+  #   variables:
+  #     LambdaV1Api:
+  #       default: abcdef123456
   # Lambda V2
   # - url: https://{LambdaV1Api}.execute-api.{Region}.amazonaws.com/v1/
   #   description: AWS (Lambda V1)
@@ -178,7 +178,7 @@ components:
             - Can't put a object
             - some error happend
     # S3 用
-    object_name:
+    ObjectName:
       title: S3 オブジェクト
       type: string
       example: sample.txt
