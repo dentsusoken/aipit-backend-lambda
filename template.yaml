@@ -178,9 +178,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
-      # Policies:
-      #   - SQSSendMessagePolicy:
-      #     QueueName: !GetAtt SampleQueue.QueueName
+      Policies:
+        - Statement:
+          - Effect: Allow
+            action:
+              -sqs:SendMessage
+            resource: !GetAtt SampleQueue.Arn
       Events:
         SQSSender:
           Type: Api
