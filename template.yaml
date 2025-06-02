@@ -66,6 +66,8 @@ Resources:
 
   HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    DependsOn:
+      - LambdaV1Api
     Properties:
       FunctionName: HelloWorldV1Function
       AutoPublishAlias: v1
@@ -81,7 +83,8 @@ Resources:
           - Effect: Allow
             Action: lambda:InvokeFunction
             Principal: apigateway.amazonaws.com
-            Resource: !GetAtt LambdaV1Api.Arn
+            Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:HelloWorldV1Function:v1
+
       # Events:
       #   HelloWorld:
       #     Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api

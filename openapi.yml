@@ -36,7 +36,7 @@ paths:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldV1Function.Arn}/invocations"
+          Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:HelloWorldV1Function:v1
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
