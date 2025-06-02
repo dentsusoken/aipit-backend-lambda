@@ -104,8 +104,11 @@ Resources:
       Architectures:
         - x86_64
       Policies:
-        - S3WritePolicy:
-          BucketName: !Ref SampleBucket
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub ${SampleBucket.Arn}/*
       Events:
         PutS3Object:
           Type: Api
@@ -175,9 +178,9 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
-      Policies:
-        - SQSSendMessagePolicy:
-          QueueName: !GetAtt SampleQueue.QueueName
+      # Policies:
+      #   - SQSSendMessagePolicy:
+      #     QueueName: !GetAtt SampleQueue.QueueName
       Events:
         SQSSender:
           Type: Api
