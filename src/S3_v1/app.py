@@ -8,10 +8,12 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-AWS_DEFAULT_REGION = os.environ["AWS_DEFAULT_REGION"]
-AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
-BUCKET_NAME = os.environ["BUCKET_NAME"]
-OBJECT_NAME = os.environ["OBJECT_NAME"]
+AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", "api-northeast-1")
+AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
+BUCKET_NAME = os.environ.get(
+    "BUCKET_NAME", "sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351"
+)
+OBJECT_NAME = os.environ.get("OBJECT_NAME", "sample.txt")
 logger = Logger(service="HelloWorldService")
 
 
