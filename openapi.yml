@@ -37,9 +37,6 @@ paths:
         httpMethod: "POST"
         uri:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldV1Function.Arn}/invocations"
-        responses:
-          default:
-            statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
@@ -76,9 +73,6 @@ paths:
         httpMethod: "POST"
         uri:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutS3ObjectV1Function.Arn}/invocations"
-        responses:
-          default:
-            statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
@@ -123,9 +117,6 @@ paths:
         httpMethod: "POST"
         uri:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SQSSenderV1Function.Arn}/invocations"
-        responses:
-          default:
-            statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
         type: "aws_proxy"
