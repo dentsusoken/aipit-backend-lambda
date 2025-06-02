@@ -40,10 +40,10 @@ Resources:
       Name: LambdaV1Api
       StageName: !Ref LambdaV1  # ← ここがデフォルトステージ名になる
       DefinitionBody:
-          Fn::Transform:
-              Name: AWS::Include
-              Parameters:
-                  Location: openapi.yml
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: openapi.yml
 
   # V2 用
   # LambdaV2Api:
@@ -78,17 +78,17 @@ Resources:
       - x86_64
       Policies:
         - Statement:
-            - Effect: Allow
-              Action: lambda:InvokeFunction
-              Resource: "*"
-              Principal: apigateway.amazonaws.com
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
-            RestApiId: !Ref LambdaV1Api
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Principal: apigateway.amazonaws.com
+            Resource: !GetAtt LambdaV1Api.Arn
+      # Events:
+      #   HelloWorld:
+      #     Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+      #     Properties:
+      #       Path: /hello
+      #       Method: get
+      #       RestApiId: !Ref LambdaV1Api
 
   # S3 {
   SampleBucket:
