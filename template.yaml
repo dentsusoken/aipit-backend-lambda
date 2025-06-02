@@ -103,6 +103,9 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
         - x86_64
+      Policies:
+        - S3WritePolicy:
+          BucketName: !Ref SampleBucket
       Events:
         PutS3Object:
           Type: Api
@@ -172,6 +175,9 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - SQSSendMessagePolicy:
+          QueueName: !GetAtt SampleQueue.QueueName
       Events:
         SQSSender:
           Type: Api
