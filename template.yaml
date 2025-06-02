@@ -131,6 +131,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            action:
+              - lambda:InvokeFunction
+            resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SampleEvent:
           Type: Schedule
@@ -160,6 +166,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            action:
+              - lambda:InvokeFunction
+            resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SqsReciever:
           Type: SQS
@@ -178,9 +190,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
-      # Policies:
-      #   - SQSSendMessagePolicy:
-      #     QueueName: !GetAtt SampleQueue.QueueName
+      Policies:
+        - Statement:
+          - Effect: Allow
+            action:
+              -sqs:SendMessage
+            resource: !GetAtt SampleQueue.Arn
       Events:
         SQSSender:
           Type: Api
