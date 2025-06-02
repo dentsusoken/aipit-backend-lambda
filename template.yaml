@@ -134,9 +134,9 @@ Resources:
       Policies:
         - Statement:
           - Effect: Allow
-            action:
+            Action:
               - lambda:InvokeFunction
-            resource: !GetAtt PutS3ObjectV1Function.Arn
+            Resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SampleEvent:
           Type: Schedule
@@ -169,9 +169,9 @@ Resources:
       Policies:
         - Statement:
           - Effect: Allow
-            action:
+            Action:
               - lambda:InvokeFunction
-            resource: !GetAtt PutS3ObjectV1Function.Arn
+            Resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SqsReciever:
           Type: SQS
@@ -193,9 +193,9 @@ Resources:
       Policies:
         - Statement:
           - Effect: Allow
-            action:
+            Action:
               -sqs:SendMessage
-            resource: !GetAtt SampleQueue.Arn
+            Resource: !GetAtt SampleQueue.Arn
       Events:
         SQSSender:
           Type: Api
