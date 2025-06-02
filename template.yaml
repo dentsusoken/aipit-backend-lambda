@@ -194,7 +194,7 @@ Resources:
         - Statement:
           - Effect: Allow
             Action:
-              -sqs:SendMessage
+              - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
       Events:
         SQSSender:
