@@ -76,6 +76,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: "*"
+              Principal: apigateway.amazonaws.com
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
