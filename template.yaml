@@ -23,6 +23,7 @@ Globals:
 
   Api:
     TracingEnabled: true
+    StageName: prod
 
 Resources:
   # Api Gateway
@@ -30,7 +31,6 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: ProdApi
-      StageName: prod  # ← ここがデフォルトステージ名になる
   #     Open API との紐づけ (Lambda とAPI Gateway が紐づかなくなる問題があるので後回し)
   #     DefinitionBody:
   #       Fn::Transform:
