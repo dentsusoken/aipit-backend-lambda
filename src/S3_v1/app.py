@@ -15,7 +15,7 @@ AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
 AWS_DEFAULT_REGION = get_parameter("/sample/region")
 BUCKET_NAME = get_parameter("/sample/bucket_name")
 OBJECT_NAME = get_parameter("/sample/object_name")
-logger = Logger(service="HelloWorldService")
+logger = Logger(service="PutS3ObjectFunction")
 metrics = Metrics(namespace="PutS3ObjectFucnction", service="PutObject")
 
 
