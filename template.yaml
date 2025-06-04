@@ -194,6 +194,12 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
+        # Metrics 用のポリシー
+        - Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
       Events:
         SQSSender:
           Type: Api
