@@ -85,7 +85,6 @@ Resources:
       CodeUri: src/S3_v1
       Handler: app.lambda_handler
       Runtime: python3.13
-      Timeout: 10
       Layers:
         - !Ref PowertoolsLayer
       Architectures:
@@ -96,12 +95,6 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub ${SampleBucket.Arn}/*
-        # Metrics 用のポリシー
-        - Statement:
-          - Effect: Allow
-            Action:
-              - cloudwatch:PutMetricData
-            Resource: "*"
       Events:
         PutS3Object:
           Type: Api
@@ -194,12 +187,6 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
-        # Metrics 用のポリシー
-        - Statement:
-          - Effect: Allow
-            Action:
-              - cloudwatch:PutMetricData
-            Resource: "*"
       Events:
         SQSSender:
           Type: Api
