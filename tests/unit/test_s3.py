@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Any, Callable, Generator
 from unittest.mock import Mock
 
@@ -7,6 +8,8 @@ import requests
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 
 from src.S3_v1 import app
+
+BUCKET_NAME = os.environ["BUCKET_NAME"]
 
 
 @pytest.fixture()
@@ -80,7 +83,7 @@ def apigw_event() -> (
 
     yield _apigw_event
 
-    requests.delete("http://localstack:4566/sample-bucket/test.txt")
+    requests.delete(f"http://localstack:4566/{BUCKET_NAME}/test.txt")
 
 
 @pytest.mark.parametrize(

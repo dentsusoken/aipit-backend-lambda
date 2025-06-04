@@ -14,32 +14,29 @@ Globals:
     # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
     LoggingConfig:
       LogFormat: JSON
+
+    Environment:
+      Variables:
+        BUCKET_NAME: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
+        OBJECT_NAME: sample.txt
+        QUEUE_NAME: sampleQueue.fifo
+
   Api:
     TracingEnabled: true
 
-Parameters:
-  LambdaV1:
-    Type: String
-    Default: v1
-  LambdaV2:
-    Type: String
-    Default: v2
-
 Resources:
-  # V1 用
-  LambdaV1Api:
+  # Api Gateway
+  ProdApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: LambdaV1Api
-      StageName: !Ref LambdaV1  # ← ここがデフォルトステージ名になる
-      # DefinitionUri: openapi.yml
-
-  # V2 用
-  # LambdaV2Api:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     Name: LambdaV2Api
-  #     StageName: !Ref LambdaV2  # ← ここがデフォルトステージ名になる
+      Name: ProdApi
+      StageName: prod  # ← ここがデフォルトステージ名になる
+  #     Open API との紐づけ (Lambda とAPI Gateway が紐づかなくなる問題があるので後回し)
+  #     DefinitionBody:
+  #       Fn::Transform:
+  #         Name: AWS::Include
+  #         Parameters:
+  #           Location: openapi.yml
 
   # Lambda レイヤー
   PowertoolsLayer:
@@ -51,7 +48,7 @@ Resources:
         - python3.13
     Metadata:
       BuildMethod: python3.13
-      BuildArchitecture: arm64
+      BuildArchitecture: x86_64
 
   HelloWorldV1Function:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -71,14 +68,14 @@ Resources:
           Properties:
             Path: /hello
             Method: get
-            RestApiId: !Ref LambdaV1Api
+            RestApiId: !Ref ProdApi
 
   # S3 {
   SampleBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
-      BucketName: sample-bucket
+      BucketName: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
 
   PutS3ObjectV1Function:
     Type: AWS::Serverless::Function
@@ -92,13 +89,19 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
         - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub ${SampleBucket.Arn}/*
       Events:
         PutS3Object:
           Type: Api
           Properties:
             Path: /s3
             Method: post
-            RestApiId: !Ref LambdaV1Api
+            RestApiId: !Ref ProdApi
   # }
 
   # EventBridge
@@ -114,6 +117,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SampleEvent:
           Type: Schedule
@@ -143,6 +152,12 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource: !GetAtt PutS3ObjectV1Function.Arn
       Events:
         SqsReciever:
           Type: SQS
@@ -161,13 +176,24 @@ Resources:
         - !Ref PowertoolsLayer
       Architectures:
       - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:GetQueueUrl
+            Resource: "*"
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt SampleQueue.Arn
       Events:
         SQSSender:
           Type: Api
           Properties:
             Path: /sqs
             Method: post
-            RestApiId: !Ref LambdaV1Api
+            RestApiId: !Ref ProdApi
   # }
 
 Outputs:
@@ -176,18 +202,18 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HelloWorldV1Api:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${LambdaV1Api}.execute-api.${AWS::Region}.amazonaws.com/${LambdaV1}/hello/"
+    Value: !Sub "https://${ProdApi}.execute-api.${AWS::Region}.amazonaws.com/prod/hello/"
   PutS3ObjectV1Api:
     Description: S3 オブジェクト追加用API
-    Value: !Sub "https://${LambdaV1Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/s3/"
+    Value: !Sub "https://${ProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/s3/"
 
   # LocalStack 用API {
   LocalStackHelloWorldV1Api:
     Description: API Gateway endpoint URL for Prod stage for Hello World function in LocalStack
-    Value: !Sub "http://localstack:4566/restapis/${LambdaV1Api}/${LambdaV1}/_user_request_/hello"
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/hello"
   LocalStackPutS3ObjectV1Api:
     Description: LocalStack でのS3 オブジェクト追加用API
-    Value: !Sub "http://localstack:4566/restapis/${LambdaV1Api}/${LambdaV1}/_user_request_/s3"
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/s3"
   # }
 
   HelloWorldV1Function:

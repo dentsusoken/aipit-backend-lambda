@@ -33,6 +33,13 @@ servers:
 paths:
   /hello:
     get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri:
+          Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:HelloWorldV1Function:v1
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
       responses:
         '200':
           description: HelloWorld 成功
@@ -62,6 +69,13 @@ paths:
                   object_name: sample.txt
               sample3:
                 value: {}
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutS3ObjectV1Function.Arn}/invocations"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
       responses:
         '200':
           description: S3 オブジェクトの作成成功
@@ -99,6 +113,13 @@ paths:
                     object_name: sample.txt
               sample3:
                 value: {}
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SQSSenderV1Function.Arn}/invocations"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
       responses:
         '200':
           description: SQS メッセージ送信成功
@@ -137,7 +158,7 @@ components:
           type: object
           properties:
             object_name:
-              $ref: "#/components/schemas/object_name"
+              $ref: "#/components/schemas/ObjectName"
     SqsResponse:
       title: SQS 正常応答
       type: object
@@ -150,7 +171,7 @@ components:
       type: object
       properties:
         object_name:
-          $ref: "#/components/schemas/object_name"
+          $ref: "#/components/schemas/ObjectName"
     S3Response:
       title: S3 正常応答
       type: object
@@ -178,7 +199,7 @@ components:
             - Can't put a object
             - some error happend
     # S3 用
-    object_name:
+    ObjectName:
       title: S3 オブジェクト
       type: string
       example: sample.txt

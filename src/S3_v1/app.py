@@ -1,26 +1,31 @@
 import json
+import os
+import time
 
 import boto3
-from aws_lambda_powertools import Logger
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-from modules.constants import (
-    AWS_DEFAULT_REGION,
-    AWS_ENDPOINT_URL,
-    BUCKET_NAME,
-    OBJECT_NAME,
+AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", "api-northeast-1")
+AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
+BUCKET_NAME = os.environ.get(
+    "BUCKET_NAME", "sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351"
 )
-
+OBJECT_NAME = os.environ.get("OBJECT_NAME", "sample.txt")
 logger = Logger(service="HelloWorldService")
+metrics = Metrics(namespace="PutS3ObjectFucnction", service="PutObject")
 
 
+@metrics.log_metrics
 def lambda_handler(
     event: APIGatewayProxyEventV1, context: Context
 ) -> APIGatewayProxyResponseV1:
     logger.info("start")
+    start_time = time.time()
 
     try:
         s3_resource = boto3.resource(
@@ -81,6 +86,13 @@ def lambda_handler(
     logger.info("put object finish")
 
     message = "S3 hello world"
+
+    end_time = time.time()
+    duration_ms = (end_time - start_time) * 1000
+
+    metrics.add_metric(
+        name="ProcessingTime", unit=MetricUnit.Milliseconds, value=duration_ms
+    )
 
     return {
         "statusCode": 200,

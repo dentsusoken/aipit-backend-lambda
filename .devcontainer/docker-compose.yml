@@ -21,6 +21,9 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_DEFAULT_REGION
       - AWS_ENDPOINT_URL
+      - BUCKET_NAME
+      - OBJECT_NAME
+      - QUEUE_NAME
 
       - http_proxy
       - HTTP_PROXY
@@ -33,7 +36,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=lambda,apigateway,s3,cloudformation,iam,logs,sqs,events
+      - SERVICES=lambda,apigateway,s3,cloudformation,iam,logs,sqs,events,cloudwatch
       - DEBUG=1
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
