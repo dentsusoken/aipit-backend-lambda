@@ -7,7 +7,7 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import SQSEvent
 from botocore.exceptions import ClientError
 
-logger = Logger(service="HelloWorldService")
+logger = Logger(service="SQSRecieverFunction")
 
 
 def lambda_handler(event: SQSEvent, context: Context) -> None:
