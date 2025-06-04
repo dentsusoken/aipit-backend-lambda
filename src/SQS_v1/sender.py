@@ -14,7 +14,7 @@ AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
 AWS_DEFAULT_REGION = get_parameter("/region")
 QUEUE_NAME = get_parameter("/queue_name")
 sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
-logger = Logger(service="HelloWorldService")
+logger = Logger(service="SQSSenderFunction")
 metrics = Metrics(namespace="SQSSenderFunction", service="SQSSender")
 
 
