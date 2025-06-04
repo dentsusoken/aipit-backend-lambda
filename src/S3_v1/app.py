@@ -1,10 +1,8 @@
 import json
 import os
-import time
 
 import boto3
 from aws_lambda_powertools import Logger, Metrics
-from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -25,7 +23,7 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: Context
 ) -> APIGatewayProxyResponseV1:
     logger.info("start")
-    start_time = time.time()
+    # start_time = time.time()
 
     try:
         s3_resource = boto3.resource(
@@ -87,12 +85,12 @@ def lambda_handler(
 
     message = "S3 hello world"
 
-    end_time = time.time()
-    duration_ms = (end_time - start_time) * 1000
+    # end_time = time.time()
+    # duration_ms = (end_time - start_time) * 1000
 
-    metrics.add_metric(
-        name="ProcessingTime", unit=MetricUnit.Milliseconds, value=duration_ms
-    )
+    # metrics.add_metric(
+    #     name="ProcessingTime", unit=MetricUnit.Milliseconds, value=duration_ms
+    # )
 
     return {
         "statusCode": 200,
