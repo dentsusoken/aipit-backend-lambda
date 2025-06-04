@@ -135,6 +135,12 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub ${SampleBucket.Arn}/*
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/region
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/object_name
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/bucket_name
       Events:
         PutS3Object:
           Type: Api
@@ -227,6 +233,10 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/region
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/queue_name
       Events:
         SQSSender:
           Type: Api
