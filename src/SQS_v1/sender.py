@@ -5,15 +5,16 @@ import time
 import boto3
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
+from aws_lambda_powertools.utilities.parameters import get_parameter
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
-AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", "api-northeast-1")
 AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
-QUEUE_NAME = os.environ.get("QUEUE_NAME", "sampleQueue.fifo")
+AWS_DEFAULT_REGION = get_parameter("/sample/region")
+QUEUE_NAME = get_parameter("/sample/queue_name")
 sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
-logger = Logger(service="HelloWorldService")
+logger = Logger(service="SQSSenderFunction")
 metrics = Metrics(namespace="SQSSenderFunction", service="SQSSender")
 
 

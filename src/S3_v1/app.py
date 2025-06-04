@@ -5,18 +5,17 @@ import time
 import boto3
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
+from aws_lambda_powertools.utilities.parameters import get_parameter
 from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION", "api-northeast-1")
 AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
-BUCKET_NAME = os.environ.get(
-    "BUCKET_NAME", "sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351"
-)
-OBJECT_NAME = os.environ.get("OBJECT_NAME", "sample.txt")
-logger = Logger(service="HelloWorldService")
+AWS_DEFAULT_REGION = get_parameter("/sample/region")
+BUCKET_NAME = get_parameter("/sample/bucket_name")
+OBJECT_NAME = get_parameter("/sample/object_name")
+logger = Logger(service="PutS3ObjectFunction")
 metrics = Metrics(namespace="PutS3ObjectFucnction", service="PutObject")
 
 

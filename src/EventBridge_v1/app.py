@@ -9,8 +9,8 @@ from aws_lambda_typing.context import Context
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from botocore.exceptions import ClientError
 
-logger = Logger(service="HelloWorldService")
-metrics = Metrics(namespace="SQSSenderFunction", service="SQSSender")
+logger = Logger(service="EventBridgeFunction")
+metrics = Metrics(namespace="EventBridgeFunction", service="EventBridge")
 
 
 def lambda_handler(event: APIGatewayProxyEventV1, context: Context) -> None:

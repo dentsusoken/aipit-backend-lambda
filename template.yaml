@@ -24,6 +24,16 @@ Globals:
   Api:
     TracingEnabled: true
 
+Parameters:
+  BucketName:
+    Type: String
+    Default: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
+    Description: Default Bucket Name
+  QueueName:
+    Type: String
+    Default: sampleQueue.fifo
+    Description: Default Queue Name
+
 Resources:
   # Api Gateway
   ProdApi:
@@ -37,6 +47,36 @@ Resources:
   #         Name: AWS::Include
   #         Parameters:
   #           Location: openapi.yml
+
+  # パラメータストア
+  ObjectNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /sample/object_name
+      Type: String
+      Value: sample.txt
+      Description: Default S3 Object Name
+  RegionParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /sample/region
+      Type: String
+      Value: ap-northeast-1
+      Description: Default AWS Region
+  BucketNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /sample/bucket_name
+      Type: String
+      Value: !Sub ${BucketName}
+      Description: Default S3 Bucket Name
+  QueueNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /sample/queue_name
+      Type: String
+      Value: !Sub ${QueueName}
+      Description: Default Queue Name
 
   # Lambda レイヤー
   PowertoolsLayer:
@@ -95,6 +135,10 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub ${SampleBucket.Arn}/*
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sample/*
       Events:
         PutS3Object:
           Type: Api
@@ -187,6 +231,10 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sample/*
       Events:
         SQSSender:
           Type: Api
