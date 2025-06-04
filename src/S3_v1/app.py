@@ -12,9 +12,9 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
 AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
-AWS_DEFAULT_REGION = get_parameter("/region")
-BUCKET_NAME = get_parameter("/bucket_name")
-OBJECT_NAME = get_parameter("/object_name")
+AWS_DEFAULT_REGION = get_parameter("/sample/region")
+BUCKET_NAME = get_parameter("/sample/bucket_name")
+OBJECT_NAME = get_parameter("/sample/object_name")
 logger = Logger(service="HelloWorldService")
 metrics = Metrics(namespace="PutS3ObjectFucnction", service="PutObject")
 
