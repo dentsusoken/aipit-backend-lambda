@@ -95,6 +95,12 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub ${SampleBucket.Arn}/*
+        # Metrics 用のポリシー
+        - Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
       Events:
         PutS3Object:
           Type: Api
@@ -123,12 +129,6 @@ Resources:
             Action:
               - lambda:InvokeFunction
             Resource: !GetAtt PutS3ObjectV1Function.Arn
-        # Metrics 用のポリシー
-        - Statement:
-          - Effect: Allow
-            Action:
-              - cloudwatch:PutMetricData
-            Resource: "*"
       Events:
         SampleEvent:
           Type: Schedule
