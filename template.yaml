@@ -52,28 +52,28 @@ Resources:
   ObjectNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: object_name
+      Name: /sample/object_name
       Type: String
       Value: sample.txt
       Description: Default S3 Object Name
   RegionParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: region
+      Name: /sample/region
       Type: String
       Value: ap-northeast-1
       Description: Default AWS Region
   BucketNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: bucket_name
+      Name: /sample/bucket_name
       Type: String
       Value: !Sub ${BucketName}
       Description: Default S3 Bucket Name
   QueueNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: queue_name
+      Name: /sample/queue_name
       Type: String
       Value: !Sub ${QueueName}
       Description: Default Queue Name
@@ -135,6 +135,12 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub ${SampleBucket.Arn}/*
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/region
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/object_name
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/bucket_name
       Events:
         PutS3Object:
           Type: Api
@@ -227,6 +233,10 @@ Resources:
             Action:
               - sqs:SendMessage
             Resource: !GetAtt SampleQueue.Arn
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/region
+        - SSMParameterReadPolicy:
+          ParameterName: /sample/queue_name
       Events:
         SQSSender:
           Type: Api

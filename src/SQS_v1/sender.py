@@ -11,8 +11,8 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 
 AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL", None)
-AWS_DEFAULT_REGION = get_parameter("/region")
-QUEUE_NAME = get_parameter("/queue_name")
+AWS_DEFAULT_REGION = get_parameter("/sample/region")
+QUEUE_NAME = get_parameter("/sample/queue_name")
 sqs = boto3.client("sqs", region_name=AWS_DEFAULT_REGION, endpoint_url=AWS_ENDPOINT_URL)
 logger = Logger(service="SQSSenderFunction")
 metrics = Metrics(namespace="SQSSenderFunction", service="SQSSender")
