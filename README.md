@@ -21,8 +21,8 @@
 ### 1. クローン
 
 ```bash
-git clone https://github.com/fcf-koga/localstack-app-devcontainer.git
-cd localstack-app-devcontainer
+git clone https://github.com/dentsusoken/aipit-backend-lambda
+cd aipit-backend-lambda
 ```
 
 ### 2. LocalStack のトークン設定
@@ -130,7 +130,7 @@ pre-commit run --all-files
 
 ## 🔐 型定義の使用例
 
-### aws_pwoertools
+### aws_powertools
 
 ```python
 # src/hello_world/app.py
