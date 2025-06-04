@@ -25,14 +25,23 @@ git clone https://github.com/fcf-koga/localstack-app-devcontainer.git
 cd localstack-app-devcontainer
 ```
 
-### 2. Dev Container で開く（VS Code）
+### 2. LocalStack のトークン設定
+[LocalStack 管理画面](https://app.localstack.cloud/settings/auth-tokens)からトークンを取得し、以下のように編集します。
+```env
+# /.devcontainer/.env
+...
+# LocalStack TOKEN 設定
+LOCALSTACK_AUTH_TOKEN=<取得したトークン>
+```
+
+### 3. Dev Container で開く（VS Code）
 VS Code 上でコマンドパレットを開き、以下を実行します。
 ```yaml
 Dev Containers: Reopen in Container
 ```
 初回起動時に `requirements-dev.txt` のパッケージがインストールされます。
 
-### 3.LocalStack 起動確認
+### 4.LocalStack 起動確認
 ```bash
 curl http://localhost:4566/_localstack/health
 ```
@@ -112,7 +121,7 @@ isort .
 flake8 .
 
 # 型チェック
-mypy src tests types
+mypy src tests
 
 # テスト実行
 pytest
@@ -170,3 +179,4 @@ def handler(event: APIGatewayProxyEventV2, context: Context) -> LambdaResponse:
 - Dev Containers (VS Code)
 - Python 3.13+
 - black / isort / flake8 / mypy
+- Github Actions
