@@ -1,4 +1,4 @@
-# 📦 localstack-app-devcontainer
+# 📦 aipit-backend-lambda
 
 [LocalStack](https://github.com/localstack/localstack) を [Dev Containers](https://containers.dev/) 上で構築し、AWS環境をローカルでエミュレーション・開発・テストできるテンプレートリポジトリです。
 
