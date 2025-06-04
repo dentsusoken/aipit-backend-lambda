@@ -85,6 +85,7 @@ Resources:
       CodeUri: src/S3_v1
       Handler: app.lambda_handler
       Runtime: python3.13
+      Timeout: 10
       Layers:
         - !Ref PowertoolsLayer
       Architectures:
@@ -183,6 +184,11 @@ Resources:
       Architectures:
       - x86_64
       Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:GetQueueUrl
+            Resource: "*"
         - Statement:
           - Effect: Allow
             Action:
