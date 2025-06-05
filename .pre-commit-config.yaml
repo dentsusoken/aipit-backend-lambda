@@ -5,7 +5,7 @@ repos:
   hooks:
   - id: sam-validate
     name: SAM Validate
-    entry: sam validate
+    entry: sam validate --template template.yaml
     language: system
     types: [yaml]
     files: ^template\.ya?ml$
