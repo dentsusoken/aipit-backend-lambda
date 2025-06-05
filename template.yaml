@@ -114,6 +114,7 @@ Resources:
   SampleBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketName: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
 
