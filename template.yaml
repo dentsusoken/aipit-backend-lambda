@@ -35,7 +35,7 @@ Parameters:
     Description: Default Queue Name
   DatabaseName:
     Type: String
-    Default: sample-database-af30d827-1274-494c-a776-b204fc7dd8e6
+    Default: SampleDB
     Description: Default Database Name
   DBEngine:
     Type: String
