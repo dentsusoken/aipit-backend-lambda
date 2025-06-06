@@ -32,11 +32,11 @@ services:
       - no_proxy
       - NO_PROXY
   localstack:
-    image: localstack/localstack-pro:4.4
+    image: localstack/localstack-pro:4.5
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=lambda,apigateway,s3,cloudformation,iam,logs,sqs,events,cloudwatch,ssm
+      - SERVICES=lambda,apigateway,s3,cloudformation,iam,logs,sqs,events,cloudwatch,ssm,rds,secretsmanager
       - DEBUG=1
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY

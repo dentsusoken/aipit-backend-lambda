@@ -33,6 +33,24 @@ Parameters:
     Type: String
     Default: sampleQueue.fifo
     Description: Default Queue Name
+  DatabaseName:
+    Type: String
+    Default: sample-database-af30d827-1274-494c-a776-b204fc7dd8e6
+    Description: Default Database Name
+  DBEngine:
+    Type: String
+    Default: aurora-postgresql
+    Description: Default Database Engine
+  RDSProxyName:
+    Type: String
+    Default: sample-rds-proxy-18bd54cb-7b7f-42fb-95a5-df7b59cb730d
+    Description: Default RDS Proxy Name
+  SubnetId1:
+    Type: String
+    Default: subnet-sample1
+  SubnetId2:
+    Type: String
+    Default: subnet-sample2
 
 Resources:
   # Api Gateway
@@ -244,6 +262,60 @@ Resources:
             Method: post
             RestApiId: !Ref ProdApi
   # }
+
+  # Aurora
+  SampleCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: !Ref DatabaseName
+      Engine: !Ref DBEngine
+      MasterUsername: SampleUser
+      ManageMasterUserPassword: true
+
+  SampleInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref SampleCluster
+      DBInstanceClass: db.t3.medium
+      Engine: !Ref DBEngine
+      PubliclyAccessible: false
+
+  SampleRDSProxy:
+    Type: AWS::RDS::DBProxy
+    Properties:
+      Auth:
+        - AuthScheme: SECRETS
+          ClientPasswordAuthType: POSTGRES_SCRAM_SHA_256
+          Description: RDS Prosy Auth
+          IAMAuth: DISABLED
+          SecretArn: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      DBProxyName: !Ref RDSProxyName
+      EngineFamily: POSTGRESQL
+      RoleArn: !GetAtt RDSProxyRole.Arn
+      VpcSubnetIds:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+
+  # RDS Proxy がSecret Manager の値を取得する権限
+  RDSProxyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RDSProxyAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: '*'
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
