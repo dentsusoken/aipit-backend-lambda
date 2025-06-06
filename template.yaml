@@ -45,12 +45,6 @@ Parameters:
     Type: String
     Default: sample-rds-proxy-18bd54cb-7b7f-42fb-95a5-df7b59cb730d
     Description: Default RDS Proxy Name
-  SubnetId1:
-    Type: String
-    Default: subnet-sample1
-  SubnetId2:
-    Type: String
-    Default: subnet-sample2
 
 Resources:
   # Api Gateway
@@ -293,8 +287,29 @@ Resources:
       EngineFamily: POSTGRESQL
       RoleArn: !GetAtt RDSProxyRole.Arn
       VpcSubnetIds:
-        - !Ref SubnetId1
-        - !Ref SubnetId2
+        - !Ref Subnet1
+        - !Ref Subnet2
+
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+
+  Subnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: 10.1.0.0/24
+      VpcId: !Ref VPC
+
+  Subnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: 10.1.1.0/24
+      VpcId: !Ref VPC
 
   # RDS Proxy がSecret Manager の値を取得する権限
   RDSProxyRole:
