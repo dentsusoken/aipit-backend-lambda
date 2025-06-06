@@ -276,7 +276,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBClusterIdentifier: !Ref SampleCluster
-      DBInstanceClass: db.t3.medium
+      DBInstanceClass: db.t2.micro
       Engine: !Ref DBEngine
       PubliclyAccessible: false
 
