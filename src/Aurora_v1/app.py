@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any, Dict
 
@@ -16,7 +17,7 @@ logger = Logger(service="InsertDataToAuroraFunction")
 metrics = Metrics(namespace="InsertDataToAuroraFunction", service="Aurora")
 
 
-def get_secret_str(key: str) -> str:
+def get_secret_obj(key: str) -> Any:
     """
     指定されたキーに対応するシークレットを SecretsProvider から取得し、文字列として返します。
 
@@ -34,13 +35,13 @@ def get_secret_str(key: str) -> str:
     """
 
     secrets = SecretsProvider()
-    value = secrets.get(key)
-    if isinstance(value, bytes):
-        return value.decode()
-    elif isinstance(value, str):
-        return value
+    raw = secrets.get(key)
+    if isinstance(raw, str):
+        return json.loads(raw)
+    elif isinstance(raw, dict):
+        return raw
     else:
-        raise ValueError(f"Unexpected secret type for key '{key}': {type(value)}")
+        raise ValueError(f"Unexpected secret type for key '{key}': {type(raw)}")
 
 
 @app.post("/db")
@@ -67,12 +68,13 @@ def insert() -> Dict[str, Any]:
     except Exception:
         raise BadRequestError("Invalid request body")
 
-    username = os.environ["DB_USER_NAME"]
     endpoint = os.environ["DB_ENDPOINT"]
     port = os.environ["DB_PORT"]
     database = os.environ["DB_NAME"]
     secret_arn = os.environ["DB_PASSWORD_SECRET_ARN"]
-    password = get_secret_str(secret_arn)
+    secret = get_secret_obj(secret_arn)
+    username = secret["username"]
+    password = secret["password"]
 
     # DB に接続する
     engine = create_engine(
