@@ -297,6 +297,7 @@ Resources:
     Properties:
       DatabaseName: !Ref DatabaseName
       Engine: !Ref DBEngine
+      ManageMasterUserPassword: true
       MasterUserSecret:
         SecretArn: !GetAtt DBSecret.Id
 
