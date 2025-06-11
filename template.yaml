@@ -33,6 +33,10 @@ Parameters:
     Type: String
     Default: sampleQueue.fifo
     Description: Default Queue Name
+  DBUsername:
+    Type: String
+    Default: SampleUser
+    Description: Default Database Username
   DatabaseName:
     Type: String
     Default: SampleDB
@@ -353,6 +357,41 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+
+  CreateDBDataV1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CreateDBDataV1Function
+      AutoPublishAlias: v1
+      CodeUri: src/Aurora_v1
+      Handler: app.handler
+      Runtime: python3.13
+      Environment:
+        Variables:
+          DB_USER_NAME: !Ref DBUsername
+          DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
+          DB_PORT: !GetAtt SampleInstance.Endpoint.Port
+          DB_NAME: !Ref DatabaseName
+          DB_PASSWORD_SECRET_ARN: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      Layers:
+        - !Ref PowertoolsLayer
+        - !Ref SqlalchemyLayer
+        - !Ref SqlModelsLayer
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sample/*
+      Events:
+        PutS3Object:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: post
+            RestApiId: !Ref ProdApi
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
