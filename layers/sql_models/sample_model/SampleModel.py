@@ -9,7 +9,7 @@ from sqlalchemy.types import String
 class SampleModel(Base):
     __tablename__ = "SampleTable"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50))
 
     def get_name(self) -> str:
