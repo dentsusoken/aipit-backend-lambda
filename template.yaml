@@ -33,6 +33,10 @@ Parameters:
     Type: String
     Default: sampleQueue.fifo
     Description: Default Queue Name
+  DBUsername:
+    Type: String
+    Default: SampleUser
+    Description: Default Database Username
   DatabaseName:
     Type: String
     Default: SampleDB
@@ -96,6 +100,28 @@ Resources:
     Properties:
       LayerName: PowertoolsLayer
       ContentUri: layers/powertools
+      CompatibleRuntimes:
+        - python3.13
+    Metadata:
+      BuildMethod: python3.13
+      BuildArchitecture: x86_64
+
+  SqlalchemyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SqlalchemyLayer
+      ContentUri: layers/sqlalchemy
+      CompatibleRuntimes:
+        - python3.13
+    Metadata:
+      BuildMethod: python3.13
+      BuildArchitecture: x86_64
+
+  SqlModelsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SqlModelsLayer
+      ContentUri: layers/sql_models
       CompatibleRuntimes:
         - python3.13
     Metadata:
@@ -258,13 +284,21 @@ Resources:
   # }
 
   # Aurora
+  DBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: rds/password
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${DBUsername}"}'
+        GenerateStringKey: "password"
+
   SampleCluster:
     Type: AWS::RDS::DBCluster
     Properties:
       DatabaseName: !Ref DatabaseName
       Engine: !Ref DBEngine
-      MasterUsername: SampleUser
-      ManageMasterUserPassword: true
+      MasterUserSecret:
+        SecretArn: !GetAtt DBSecret.Id
 
   SampleInstance:
     Type: AWS::RDS::DBInstance
@@ -282,7 +316,7 @@ Resources:
           ClientPasswordAuthType: POSTGRES_SCRAM_SHA_256
           Description: RDS Prosy Auth
           IAMAuth: DISABLED
-          SecretArn: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+          SecretArn: !GetAtt DBSecret.Id
       DBProxyName: !Ref RDSProxyName
       EngineFamily: POSTGRESQL
       RoleArn: !GetAtt RDSProxyRole.Arn
@@ -331,6 +365,41 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: '*'
+
+  CreateDBDataV1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CreateDBDataV1Function
+      AutoPublishAlias: v1
+      CodeUri: src/Aurora_v1
+      Handler: app.handler
+      Runtime: python3.13
+      Environment:
+        Variables:
+          DB_USER_NAME: !Ref DBUsername
+          DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
+          DB_PORT: !GetAtt SampleInstance.Endpoint.Port
+          DB_NAME: !Ref DatabaseName
+          DB_PASSWORD_SECRET_ARN: !GetAtt DBSecret.Id
+      Layers:
+        - !Ref PowertoolsLayer
+        - !Ref SqlalchemyLayer
+        - !Ref SqlModelsLayer
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sample/*
+      Events:
+        PutS3Object:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: post
+            RestApiId: !Ref ProdApi
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

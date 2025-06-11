@@ -17,6 +17,7 @@ services:
     depends_on:
       - localstack
     environment:
+      - PYTHONPATH
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_DEFAULT_REGION
@@ -31,6 +32,9 @@ services:
       - HTTPS_PROXY
       - no_proxy
       - NO_PROXY
+    networks:
+      localnet:
+
   localstack:
     image: localstack/localstack-pro:4.5
     ports:
@@ -54,6 +58,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - localstack_data:/var/lib/localstack
+    networks:
+      localnet:
+        aliases:
+          - localhost.localstack.cloud
 
 volumes:
   localstack_data:
+
+networks:
+  localnet:
