@@ -19,9 +19,10 @@ metrics = Metrics(namespace="InsertDataToAuroraFunction", service="Aurora")
 
 def get_secret_obj(key: str) -> Any:
     """
-    指定されたキーに対応するシークレットを SecretsProvider から取得し、文字列として返します。
+    指定されたキーに対応するシークレットを SecretsProvider から取得し、辞書型として返します。
 
-    シークレットがバイト型（bytes）の場合は UTF-8 でデコードし、文字列型（str）の場合はそのまま返します。
+    シークレットが文字列型（str）の場合は JSON としてパースして辞書型に変換します。
+    すでに辞書型（dict）の場合はそのまま返します。
     それ以外の型の場合は、予期しない型として ValueError を送出します。
 
     引数:
