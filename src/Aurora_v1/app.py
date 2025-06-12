@@ -64,11 +64,12 @@ def insert() -> Dict[str, Any]:
     """
 
     try:
-        logger.debug(app.current_event)
+        logger.debug("### Parsing Request ###")
+        logger.debug("Event: %s", str(app.current_event))
         body = app.current_event.json_body
-        logger.debug(body)
+        logger.debug("Body: %s", str(body))
         name = body.get("name", "sample")
-        logger.debug(name)
+        logger.debug("Name: %s", name)
     except Exception:
         raise BadRequestError("Invalid request body")
 
