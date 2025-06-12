@@ -296,6 +296,15 @@ Resources:
         SecretStringTemplate: !Sub '{"username": "${DBUsername}"}'
         GenerateStringKey: "password"
 
+  SampleDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for Aurora
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      DBSubnetGroupName: SampleDBSubnetGroup
+
   SampleCluster:
     Type: AWS::RDS::DBCluster
     Properties:
@@ -305,6 +314,9 @@ Resources:
       ManageMasterUserPassword: true
       MasterUserSecret:
         SecretArn: !GetAtt DBSecret.Id
+      VpcSecurityGroupIds:
+        - !Ref SampleSecurityGroup
+      DBSubnetGroupName: !Ref SampleDBSubnetGroup
 
   SampleInstance:
     Type: AWS::RDS::DBInstance
@@ -363,13 +375,20 @@ Resources:
         - !Ref SampleSecurityGroup
       PrivateDnsEnabled: true
   AllowAccessSecretManagerGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Seacrets Manager access within the same security group
+      GroupName: AllowAccessSecretManagerGroup
+      VpcId:
+        Ref: VPC
+  AllowAccessSecretManagerGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SampleSecurityGroup
+      GroupId: !Ref AllowAccessSecretManagerGroup
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
-      SourceSecurityGroupId: !Ref SampleSecurityGroup
+      SourceSecurityGroupId: !Ref AllowAccessSecretManagerGroup
 
   VPC:
     Type: "AWS::EC2::VPC"
@@ -439,6 +458,7 @@ Resources:
           - !Ref Subnet2
         SecurityGroupIds:
           - !Ref SampleSecurityGroup
+          - !Ref AllowAccessSecretManagerGroup
       Architectures:
         - x86_64
       Policies:
