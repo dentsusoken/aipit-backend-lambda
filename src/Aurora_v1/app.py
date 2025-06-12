@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Any, Dict
+from urllib.parse import quote_plus
 
 from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.event_handler import ApiGatewayResolver
@@ -80,7 +81,7 @@ def insert() -> Dict[str, Any]:
     secret_arn = os.environ["DB_PASSWORD_SECRET_ARN"]
     secret = get_secret_obj(secret_arn)
     username = secret["username"]
-    password = secret["password"]
+    password = quote_plus(secret["password"])
 
     # DB に接続する
     logger.debug("RDS Connectiong ...")
