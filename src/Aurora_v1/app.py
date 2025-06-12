@@ -83,18 +83,24 @@ def insert() -> Dict[str, Any]:
     password = secret["password"]
 
     # DB に接続する
+    logger.debug("RDS Connectiong ...")
     engine = create_engine(
         f"postgresql://{username}:{password}@{endpoint}:{port}/{database}"
     )
+    logger.debug(f"Engine: {engine}")
 
     # セッションを作成する
+    logger.debug("Session Creating ...")
     SessionClass = sessionmaker(engine)
     session = SessionClass()
+    logger.debug(f"Secction: {session}")
 
     # DB にデータを挿入する
+    logger.debug("Insert Data")
     sample = SampleModel(name=name)
     session.add(sample)
     session.commit()
+    logger.debug(f"Insert Completed: {sample}")
 
     # 結果を返す
     return {"message": f"{sample.get_name()}"}
