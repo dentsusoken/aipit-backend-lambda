@@ -348,6 +348,7 @@ Resources:
       FromPort: !Ref DBPort
       ToPort: !Ref DBPort
       SourceSecurityGroupId: !Ref SampleSecurityGroup
+
   VPC:
     Type: "AWS::EC2::VPC"
     Properties:
@@ -413,6 +414,8 @@ Resources:
         SubnetIds:
           - !Ref Subnet1
           - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref SampleSecurityGroup
       Architectures:
         - x86_64
       Policies:
