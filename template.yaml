@@ -362,6 +362,14 @@ Resources:
       SecurityGroupIds:
         - !Ref SampleSecurityGroup
       PrivateDnsEnabled: true
+  AllowAccessSecretManagerGroup:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SampleSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref SampleSecurityGroup
 
   VPC:
     Type: "AWS::EC2::VPC"
