@@ -403,7 +403,7 @@ Resources:
         Variables:
           DB_USER_NAME: !Ref DBUsername
           DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
-          DB_PORT: !GetAtt SampleInstance.Endpoint.Port
+          DB_PORT: !Ref DBPort
           DB_NAME: !Ref DatabaseName
           DB_PASSWORD_SECRET_ARN: !GetAtt DBSecret.Id
       Layers:
