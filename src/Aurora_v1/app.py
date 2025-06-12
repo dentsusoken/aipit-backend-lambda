@@ -70,7 +70,8 @@ def insert() -> Dict[str, Any]:
         logger.debug("Body: %s", str(body))
         name = body.get("name", "sample")
         logger.debug("Name: %s", name)
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         raise BadRequestError("Invalid request body")
 
     endpoint = os.environ["DB_ENDPOINT"]
