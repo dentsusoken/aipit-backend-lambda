@@ -312,6 +312,7 @@ Resources:
       Engine: !Ref DBEngine
       Port: !Ref DBPort
       ManageMasterUserPassword: true
+      MasterUsername: !Ref DBUsername
       MasterUserSecret:
         SecretArn: !GetAtt DBSecret.Id
       VpcSecurityGroupIds:
