@@ -392,8 +392,12 @@ Resources:
         - Statement:
           - Effect: Allow
             Action:
-              - ssm:GetParameter
-            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sample/*
+              - secretsmanager:GetSecretValue
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - rds-db:connect
+            Resource: '*'
       Events:
         PutS3Object:
           Type: Api
