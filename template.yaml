@@ -349,6 +349,20 @@ Resources:
       ToPort: !Ref DBPort
       SourceSecurityGroupId: !Ref SampleSecurityGroup
 
+  # VPC 内からシークレットマネージャーへアクセスできるようにする
+  SecretsManagerVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.secretsmanager"
+      VpcId: !Ref VPC
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroupIds:
+        - !Ref SampleSecurityGroup
+      PrivateDnsEnabled: true
+
   VPC:
     Type: "AWS::EC2::VPC"
     Properties:
@@ -399,6 +413,7 @@ Resources:
       CodeUri: src/Aurora_v1
       Handler: app.handler
       Runtime: python3.13
+      Timeout: 30
       Environment:
         Variables:
           DB_USER_NAME: !Ref DBUsername
