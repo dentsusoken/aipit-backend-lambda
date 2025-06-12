@@ -49,6 +49,10 @@ Parameters:
     Type: String
     Default: sample-rds-proxy-18bd54cb-7b7f-42fb-95a5-df7b59cb730d
     Description: Default RDS Proxy Name
+  DBPort:
+    Type: Number
+    Default: 5432
+    Description: Default Database Port
 
 Resources:
   # Api Gateway
@@ -297,6 +301,7 @@ Resources:
     Properties:
       DatabaseName: !Ref DatabaseName
       Engine: !Ref DBEngine
+      Port: !Ref DBPort
       ManageMasterUserPassword: true
       MasterUserSecret:
         SecretArn: !GetAtt DBSecret.Id
@@ -324,7 +329,25 @@ Resources:
       VpcSubnetIds:
         - !Ref Subnet1
         - !Ref Subnet2
+      VpcSecurityGroupIds:
+        - Ref: SampleSecurityGroup
 
+  SampleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL access within the same security group
+      GroupName: SampleSecurityGroup
+      VpcId:
+        Ref: VPC
+
+  SampleSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SampleSecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      SourceSecurityGroupId: !Ref SampleSecurityGroup
   VPC:
     Type: "AWS::EC2::VPC"
     Properties:
@@ -386,6 +409,10 @@ Resources:
         - !Ref PowertoolsLayer
         - !Ref SqlalchemyLayer
         - !Ref SqlModelsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
       Architectures:
         - x86_64
       Policies:
