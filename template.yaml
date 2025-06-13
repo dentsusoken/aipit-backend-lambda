@@ -316,7 +316,7 @@ Resources:
       MasterUserSecret:
         SecretArn: !GetAtt DBSecret.Id
       VpcSecurityGroupIds:
-        - !Ref SampleSecurityGroup
+        - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref SampleDBSubnetGroup
 
   SampleInstance:
@@ -351,24 +351,47 @@ Resources:
         - !Ref Subnet1
         - !Ref Subnet2
       VpcSecurityGroupIds:
-        - Ref: SampleSecurityGroup
+        - Ref: RDSSecurityGroup
 
-  SampleSecurityGroup:
+  RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow PostgreSQL access within the same security group
-      GroupName: SampleSecurityGroup
+      GroupDescription: Allow PostgreSQL access within the lambda security group
+      GroupName: RDSSecurityGroup
       VpcId:
         Ref: VPC
-
-  SampleSecurityGroupIngress:
+  RDSSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SampleSecurityGroup
+      GroupId: !Ref RDSSecurityGroup
       IpProtocol: tcp
       FromPort: !Ref DBPort
       ToPort: !Ref DBPort
-      SourceSecurityGroupId: !Ref SampleSecurityGroup
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL and SecretsManager access
+      GroupName: LambdaSecurityGroup
+      VpcId:
+        Ref: VPC
+  LambdaSecurityGroupEgress1:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      DestinationSecurityGroupId: !Ref RDSSecurityGroup
+  LambdaSecurityGroupEgress2:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: !Ref AllowAccessSecretManagerGroup
 
   # VPC 内からシークレットマネージャーへアクセスできるようにする
   SecretsManagerVPCEndpoint:
@@ -381,12 +404,12 @@ Resources:
         - !Ref Subnet1
         - !Ref Subnet2
       SecurityGroupIds:
-        - !Ref SampleSecurityGroup
+        - !Ref AllowAccessSecretManagerGroup
       PrivateDnsEnabled: true
   AllowAccessSecretManagerGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow Seacrets Manager access within the same security group
+      GroupDescription: Allow Seacrets Manager access within the lambda security group
       GroupName: AllowAccessSecretManagerGroup
       VpcId:
         Ref: VPC
@@ -397,7 +420,7 @@ Resources:
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
-      SourceSecurityGroupId: !Ref AllowAccessSecretManagerGroup
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
 
   VPC:
     Type: "AWS::EC2::VPC"
@@ -466,8 +489,7 @@ Resources:
           - !Ref Subnet1
           - !Ref Subnet2
         SecurityGroupIds:
-          - !Ref SampleSecurityGroup
-          - !Ref AllowAccessSecretManagerGroup
+          - !Ref LambdaSecurityGroup
       Architectures:
         - x86_64
       Policies:
