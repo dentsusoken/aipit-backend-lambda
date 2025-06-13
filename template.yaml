@@ -327,6 +327,14 @@ Resources:
       Engine: !Ref DBEngine
       PubliclyAccessible: false
 
+  SampleRDSTargetGroup:
+    Type: AWS::RDS::DBProxyTargetGroup
+    Properties:
+      DBClusterIdentifiers:
+        - !Ref SampleCluster
+      DBProxyName: !Ref RDSProxyName
+      TargetGroupName: default
+
   SampleRDSProxy:
     Type: AWS::RDS::DBProxy
     Properties:
