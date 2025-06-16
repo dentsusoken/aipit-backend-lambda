@@ -295,6 +295,7 @@ Resources:
       GenerateSecretString:
         SecretStringTemplate: !Sub '{"username": "${DBUsername}"}'
         GenerateStringKey: "password"
+        ExcludePunctuation: true
 
   SampleDBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
