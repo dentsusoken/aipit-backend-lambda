@@ -376,22 +376,6 @@ Resources:
       GroupName: LambdaSecurityGroup
       VpcId:
         Ref: VPC
-  LambdaSecurityGroupEgress1:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref LambdaSecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref DBPort
-      ToPort: !Ref DBPort
-      DestinationSecurityGroupId: !Ref RDSSecurityGroup
-  LambdaSecurityGroupEgress2:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref LambdaSecurityGroup
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
-      DestinationSecurityGroupId: !Ref AllowAccessSecretManagerGroup
 
   # VPC 内からシークレットマネージャーへアクセスできるようにする
   SecretsManagerVPCEndpoint:
