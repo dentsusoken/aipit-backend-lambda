@@ -330,7 +330,7 @@ Resources:
   SampleRDSTargetGroup:
     Type: AWS::RDS::DBProxyTargetGroup
     Properties:
-      DBClusterIdentifiers:
+      DBInstanceIdentifiers:
         - !Ref SampleInstance
       DBProxyName: !Ref RDSProxyName
       TargetGroupName: default
