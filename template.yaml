@@ -351,7 +351,7 @@ Resources:
         - !Ref Subnet1
         - !Ref Subnet2
       VpcSecurityGroupIds:
-        - Ref: RDSSecurityGroup
+        - Ref: RDSProxySecurityGroup
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -367,7 +367,7 @@ Resources:
       IpProtocol: tcp
       FromPort: !Ref DBPort
       ToPort: !Ref DBPort
-      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+      SourceSecurityGroupId: !Ref RDSProxySecurityGroup
 
   LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -376,6 +376,19 @@ Resources:
       GroupName: LambdaSecurityGroup
       VpcId:
         Ref: VPC
+
+  RDSProxySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL access within the lambda security group
+      GroupName: RDSProxySecurityGroup
+      VpcId:
+        Ref: VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          ToPort: !Ref DBPort
+          FromPort: !Ref DBPort
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
 
   # VPC 内からシークレットマネージャーへアクセスできるようにする
   SecretsManagerVPCEndpoint:
