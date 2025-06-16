@@ -288,15 +288,6 @@ Resources:
   # }
 
   # Aurora
-  DBSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: rds/password
-      GenerateSecretString:
-        SecretStringTemplate: !Sub '{"username": "${DBUsername}"}'
-        GenerateStringKey: "password"
-        ExcludePunctuation: true
-
   SampleDBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -313,9 +304,6 @@ Resources:
       Engine: !Ref DBEngine
       Port: !Ref DBPort
       ManageMasterUserPassword: true
-      MasterUsername: !Ref DBUsername
-      MasterUserSecret:
-        SecretArn: !GetAtt DBSecret.Id
       VpcSecurityGroupIds:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref SampleDBSubnetGroup
@@ -344,7 +332,7 @@ Resources:
           ClientPasswordAuthType: POSTGRES_SCRAM_SHA_256
           Description: RDS Prosy Auth
           IAMAuth: DISABLED
-          SecretArn: !GetAtt DBSecret.Id
+          SecretArn: !GetAtt SampleCluster.MasterUserSecret.SecretArn
       DBProxyName: !Ref RDSProxyName
       EngineFamily: POSTGRESQL
       RoleArn: !GetAtt RDSProxyRole.Arn
@@ -500,11 +488,10 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          DB_USER_NAME: !Ref DBUsername
           DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
           DB_PORT: !Ref DBPort
           DB_NAME: !Ref DatabaseName
-          DB_PASSWORD_SECRET_ARN: !GetAtt DBSecret.Id
+          DB_PASSWORD_SECRET_ARN: !GetAtt SampleCluster.MasterUserSecret.SecretArn
       Layers:
         - !Ref PowertoolsLayer
         - !Ref SqlalchemyLayer
