@@ -118,7 +118,7 @@ def test_lambda_handler(
 
     # DB に接続する
     engine = create_engine(
-        "postgresql://SampleUser:test@localhost.localstack.cloud:4510/SampleDB"
+        "postgresql://test:test@localhost.localstack.cloud:4510/SampleDB"
     )
 
     # セッションを作成する
