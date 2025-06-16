@@ -408,6 +408,14 @@ Resources:
       FromPort: !Ref DBPort
       ToPort: !Ref DBPort
       DestinationSecurityGroupId: !Ref RDSSecurityGroup
+  RDSProxySecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RDSProxySecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
 
   # VPC 内からシークレットマネージャーへアクセスできるようにする
   SecretsManagerVPCEndpoint:
