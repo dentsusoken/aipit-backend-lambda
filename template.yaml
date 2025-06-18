@@ -166,6 +166,12 @@ Resources:
       Runtime: python3.13
       Layers:
         - !Ref PowertoolsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Events:
@@ -194,6 +200,12 @@ Resources:
       Runtime: python3.13
       Layers:
         - !Ref PowertoolsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
         - x86_64
       Policies:
@@ -226,6 +238,12 @@ Resources:
       Runtime: python3.13
       Layers:
         - !Ref PowertoolsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -261,6 +279,12 @@ Resources:
       Runtime: python3.13
       Layers:
         - !Ref PowertoolsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -285,6 +309,12 @@ Resources:
       Runtime: python3.13
       Layers:
         - !Ref PowertoolsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -405,6 +435,22 @@ Resources:
       FromPort: 443
       ToPort: 443
       DestinationSecurityGroupId: !Ref AllowAccessSecretManagerGroup
+  LambdaSecurityGroupSQSEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: !Ref AllowAccessSQSGroup
+  LambdaSecurityGroupParameterStoreEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: !Ref AllowAccessParameterStoreGroup
 
   RDSProxySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -454,6 +500,81 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref AllowAccessSecretManagerGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  # VPC 内からS3へアクセスできるようにする
+  VPCRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  S3VPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+      VpcId: !Ref VPC
+      VpcEndpointType: Gateway
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      RouteTableIds: !Ref VPCRouteTable
+      PrivateDnsEnabled: true
+
+  # VPC 内からSQSへアクセスできるようにする
+  SQSVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.sqs"
+      VpcId: !Ref VPC
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroupIds:
+        - !Ref AllowAccessSQSGroup
+      PrivateDnsEnabled: true
+  AllowAccessSQSGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Seacrets Manager access within the lambda security group
+      GroupName: AllowAccessSQSGroup
+      VpcId:
+        Ref: VPC
+  AllowAccessSQSGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref AllowAccessSQSGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  # VPC 内からParameter Store へアクセスできるようにする
+  ParameterStoreVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcId: !Ref VPC
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroupIds:
+        - !Ref AllowAccessParameterStoreGroup
+      PrivateDnsEnabled: true
+  AllowAccessParameterStoreGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Seacrets Manager access within the lambda security group
+      GroupName: AllowAccessParameterStoreGroup
+      VpcId:
+        Ref: VPC
+  AllowAccessParameterStoreGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref AllowAccessParameterStoreGroup
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
@@ -532,10 +653,6 @@ Resources:
             Action:
               - rds-db:connect
             Resource: '*'
-          - Effect: Allow
-            Action:
-              - ssm:GetParameter
-            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
       Events:
         PutS3Object:
           Type: Api
