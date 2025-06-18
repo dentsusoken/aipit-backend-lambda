@@ -5,8 +5,7 @@ from unittest.mock import Mock
 import pytest
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from sample_model.SampleModel import SampleModel
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from shared.manager import DatabaseManager
 
 from src.Aurora_v1 import app
 
@@ -99,37 +98,25 @@ def apigw_event() -> (
     ],
 )
 def test_lambda_handler(
-    monkeypatch: pytest.MonkeyPatch,
     apigw_event: Callable[[dict[str, Any]], APIGatewayProxyEventV1],
     body: dict[str, Any],
     expected_status: int,
     expected_data: str,
 ) -> None:
-    # 環境変数を設定する
-    monkeypatch.setenv("DB_ENDPOINT", "localhost.localstack.cloud")
-    monkeypatch.setenv("DB_PORT", "4510")
-    monkeypatch.setenv("DB_NAME", "SampleDB")
-    monkeypatch.setenv("DB_PASSWORD_SECRET_ARN", "rds/password")
-
     mock_context = Mock()
 
     ret = app.handler(apigw_event(body), mock_context)
     data = json.loads(ret["body"])
 
-    # DB に接続する
-    engine = create_engine(
-        "postgresql://test:test@localhost.localstack.cloud:4510/SampleDB"
-    )
-
-    # セッションを作成する
-    SessionClass = sessionmaker(engine)
-    session = SessionClass()
+    manager = DatabaseManager()
 
     # テストで作成したレコードを取得する
     record = None
     if ret["statusCode"] == 200:
         record = (
-            session.query(SampleModel).filter(SampleModel.name == body["name"]).first()
+            manager.session.query(SampleModel)
+            .filter(SampleModel.name == body["name"])
+            .first()
         )
 
     assert ret["statusCode"] == expected_status
@@ -141,5 +128,5 @@ def test_lambda_handler(
         assert record.get_name() == expected_data
 
         # 作成したデータを削除する
-        session.delete(record)
-        session.commit()
+        manager.session.delete(record)
+        manager.session.commit()
