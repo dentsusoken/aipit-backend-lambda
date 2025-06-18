@@ -97,33 +97,29 @@ Resources:
       Type: String
       Value: !Sub ${QueueName}
       Description: Default Queue Name
-  DBEndpointParameter:
-    Type: AWS::SSM::Parameter
+  DBEndpointSecret:
+    Type: AWS::SecretsManager::Secret
     Properties:
       Name: /database/endpoint
-      Type: String
-      Value: !GetAtt SampleRDSProxy.Endpoint
+      SecretString: !GetAtt SampleRDSProxy.Endpoint
       Description: Database Endpoint
-  DBPortParameter:
-    Type: AWS::SSM::Parameter
+  DBPortSecret:
+    Type: AWS::SecretsManager::Secret
     Properties:
       Name: /database/port
-      Type: String
-      Value: !Ref DBPort
+      SecretString: !Ref DBPort
       Description: Databese Port
-  DBNameParameter:
-    Type: AWS::SSM::Parameter
+  DBNameSecret:
+    Type: AWS::SecretsManager::Secret
     Properties:
       Name: /database/name
-      Type: String
-      Value: !Ref DatabaseName
+      SecretString: !Ref DatabaseName
       Description: Databese Name
-  DBSecretArnParameter:
-    Type: AWS::SSM::Parameter
+  DBSecretArnSecret:
+    Type: AWS::SecretsManager::Secret
     Properties:
       Name: /database/secret_arn
-      Type: String
-      Value: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      SecretString: !GetAtt SampleCluster.MasterUserSecret.SecretArn
       Description: Databese Secret Arn
 
   # Lambda レイヤー
