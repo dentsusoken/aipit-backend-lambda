@@ -2,6 +2,7 @@
     "python.analysis.extraPaths": [
         "layers/sql_models/",
         "layers/powertools/",
+        "layers/sqlalchemy/"
     ],
     "python.testing.pytestArgs": [
         "tests",
