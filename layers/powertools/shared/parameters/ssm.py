@@ -1,7 +1,7 @@
 from typing import Any
 
 from aws_lambda_powertools.utilities.parameters import SSMProvider
-from shared.parameters.utils import raw_to_obj
+from shared.parameters.utils import raw_to_obj, raw_to_str
 
 
 class Ssm:
@@ -21,3 +21,16 @@ class Ssm:
         raw = self.ssm.get(key)
 
         return raw_to_obj(raw)
+
+    def get_parameter_str(self, key: str) -> str:
+        """
+        指定されたキーに対応するパラメータを Parameter Store から取得し、文字列として返します。
+
+        引数:
+            key (str): 取得したいパラメータのキー。
+
+        戻り値:
+            str: 取得されたパラメータの文字列。
+        """
+        raw = self.ssm.get(key)
+        return raw_to_str(raw)
