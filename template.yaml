@@ -519,7 +519,8 @@ Resources:
       SubnetIds:
         - !Ref Subnet1
         - !Ref Subnet2
-      RouteTableIds: !Ref VPCRouteTable
+      RouteTableIds:
+        - !Ref VPCRouteTable
       PrivateDnsEnabled: true
 
   # VPC 内からSQSへアクセスできるようにする
