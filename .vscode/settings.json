@@ -1,6 +1,7 @@
 {
     "python.analysis.extraPaths": [
-        "layers/sql_models/"
+        "layers/sql_models/",
+        "layers/powertools/",
     ],
     "python.testing.pytestArgs": [
         "tests",
