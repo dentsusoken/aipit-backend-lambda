@@ -97,6 +97,34 @@ Resources:
       Type: String
       Value: !Sub ${QueueName}
       Description: Default Queue Name
+  DBEndpointParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /database/endpoint
+      Type: String
+      Value: !GetAtt SampleRDSProxy.Endpoint
+      Description: Database Endpoint
+  DBPortParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /database/port
+      Type: String
+      Value: !Ref DBPort
+      Description: Databese Port
+  DBNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /database/name
+      Type: String
+      Value: !Ref DatabaseName
+      Description: Databese Name
+  DBSecretArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /database/secret_arn
+      Type: String
+      Value: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      Description: Databese Secret Arn
 
   # Lambda レイヤー
   PowertoolsLayer:
@@ -158,7 +186,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      BucketName: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
+      BucketName: !Ref BucketName
 
   PutS3ObjectV1Function:
     Type: AWS::Serverless::Function
@@ -486,12 +514,6 @@ Resources:
       Handler: app.handler
       Runtime: python3.13
       Timeout: 30
-      Environment:
-        Variables:
-          DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
-          DB_PORT: !Ref DBPort
-          DB_NAME: !Ref DatabaseName
-          DB_PASSWORD_SECRET_ARN: !GetAtt SampleCluster.MasterUserSecret.SecretArn
       Layers:
         - !Ref PowertoolsLayer
         - !Ref SqlalchemyLayer
@@ -514,6 +536,10 @@ Resources:
             Action:
               - rds-db:connect
             Resource: '*'
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
       Events:
         PutS3Object:
           Type: Api
