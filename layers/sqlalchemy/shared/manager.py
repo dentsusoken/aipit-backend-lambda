@@ -2,21 +2,19 @@ from urllib.parse import quote_plus
 
 from aws_lambda_powertools import Logger
 from shared.parameters.secrets import Secrets
-from shared.parameters.ssm import Ssm
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 logger = Logger(service="SqlalchemyLayer")
-ssm_instance = Ssm()
 secrets_instance = Secrets()
 
 
 class DatabaseManager:
     def __init__(self) -> None:
-        endpoint = ssm_instance.get_parameter_str("/database/endpoint")
-        port = ssm_instance.get_parameter_str("/database/port")
-        database = ssm_instance.get_parameter_str("/database/name")
-        secret_arn = ssm_instance.get_parameter_str("/database/secret_arn")
+        endpoint = secrets_instance.get_secret_str("/database/endpoint")
+        port = secrets_instance.get_secret_str("/database/port")
+        database = secrets_instance.get_secret_str("/database/name")
+        secret_arn = secrets_instance.get_secret_str("/database/secret_arn")
         secret = secrets_instance.get_secret_obj(secret_arn)
         username = secret["username"]
         password = quote_plus(secret["password"])
