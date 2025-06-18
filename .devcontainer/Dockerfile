@@ -14,7 +14,7 @@ ENV NO_PROXY=${NO_PROXY}
 
 # 基本ツールとロケール設定
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends git curl unzip zip locales less
+RUN apt-get install -y --no-install-recommends git curl unzip zip locales less postgresql-client
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 RUN locale-gen
 RUN echo 'LANG=en_US.UTF-8' > /etc/default/locale

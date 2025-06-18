@@ -1,4 +1,7 @@
 {
+    "python.analysis.extraPaths": [
+        "layers/sql_models/"
+    ],
     "python.testing.pytestArgs": [
         "tests",
         "--cov=src",

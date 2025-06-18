@@ -33,6 +33,26 @@ Parameters:
     Type: String
     Default: sampleQueue.fifo
     Description: Default Queue Name
+  DBUsername:
+    Type: String
+    Default: SampleUser
+    Description: Default Database Username
+  DatabaseName:
+    Type: String
+    Default: SampleDB
+    Description: Default Database Name
+  DBEngine:
+    Type: String
+    Default: aurora-postgresql
+    Description: Default Database Engine
+  RDSProxyName:
+    Type: String
+    Default: sample-rds-proxy-18bd54cb-7b7f-42fb-95a5-df7b59cb730d
+    Description: Default RDS Proxy Name
+  DBPort:
+    Type: Number
+    Default: 5432
+    Description: Default Database Port
 
 Resources:
   # Api Gateway
@@ -84,6 +104,28 @@ Resources:
     Properties:
       LayerName: PowertoolsLayer
       ContentUri: layers/powertools
+      CompatibleRuntimes:
+        - python3.13
+    Metadata:
+      BuildMethod: python3.13
+      BuildArchitecture: x86_64
+
+  SqlalchemyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SqlalchemyLayer
+      ContentUri: layers/sqlalchemy
+      CompatibleRuntimes:
+        - python3.13
+    Metadata:
+      BuildMethod: python3.13
+      BuildArchitecture: x86_64
+
+  SqlModelsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SqlModelsLayer
+      ContentUri: layers/sql_models
       CompatibleRuntimes:
         - python3.13
     Metadata:
@@ -244,6 +286,241 @@ Resources:
             Method: post
             RestApiId: !Ref ProdApi
   # }
+
+  # Aurora
+  SampleDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for Aurora
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      DBSubnetGroupName: SampleDBSubnetGroup
+
+  SampleCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: !Ref DatabaseName
+      Engine: !Ref DBEngine
+      Port: !Ref DBPort
+      ManageMasterUserPassword: true
+      VpcSecurityGroupIds:
+        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref SampleDBSubnetGroup
+
+  SampleInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier: !Ref SampleCluster
+      DBInstanceClass: db.t3.medium
+      Engine: !Ref DBEngine
+      PubliclyAccessible: false
+
+  SampleRDSTargetGroup:
+    Type: AWS::RDS::DBProxyTargetGroup
+    Properties:
+      DBClusterIdentifiers:
+        - !Ref SampleCluster
+      DBProxyName: !Ref RDSProxyName
+      TargetGroupName: default
+
+  SampleRDSProxy:
+    Type: AWS::RDS::DBProxy
+    Properties:
+      Auth:
+        - AuthScheme: SECRETS
+          ClientPasswordAuthType: POSTGRES_SCRAM_SHA_256
+          Description: RDS Prosy Auth
+          IAMAuth: DISABLED
+          SecretArn: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      DBProxyName: !Ref RDSProxyName
+      EngineFamily: POSTGRESQL
+      RoleArn: !GetAtt RDSProxyRole.Arn
+      VpcSubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      VpcSecurityGroupIds:
+        - Ref: RDSProxySecurityGroup
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL access within the lambda security group
+      GroupName: RDSSecurityGroup
+      VpcId:
+        Ref: VPC
+  RDSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RDSSecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      SourceSecurityGroupId: !Ref RDSProxySecurityGroup
+
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL and SecretsManager access
+      GroupName: LambdaSecurityGroup
+      VpcId:
+        Ref: VPC
+  LambdaSecurityGroupEgress1:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      DestinationSecurityGroupId: !Ref RDSProxySecurityGroup
+  LambdaSecurityGroupEgress2:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref LambdaSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: !Ref AllowAccessSecretManagerGroup
+
+  RDSProxySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow PostgreSQL access within the lambda security group
+      GroupName: RDSProxySecurityGroup
+      VpcId:
+        Ref: VPC
+  RDSProxySecurityGroupEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref RDSProxySecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      DestinationSecurityGroupId: !Ref RDSSecurityGroup
+  RDSProxySecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RDSProxySecurityGroup
+      IpProtocol: tcp
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  # VPC 内からシークレットマネージャーへアクセスできるようにする
+  SecretsManagerVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.secretsmanager"
+      VpcId: !Ref VPC
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      SecurityGroupIds:
+        - !Ref AllowAccessSecretManagerGroup
+      PrivateDnsEnabled: true
+  AllowAccessSecretManagerGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Seacrets Manager access within the lambda security group
+      GroupName: AllowAccessSecretManagerGroup
+      VpcId:
+        Ref: VPC
+  AllowAccessSecretManagerGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref AllowAccessSecretManagerGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+
+  Subnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: 10.1.0.0/24
+      VpcId: !Ref VPC
+
+  Subnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: 10.1.1.0/24
+      VpcId: !Ref VPC
+
+  # RDS Proxy がSecret Manager の値を取得する権限
+  RDSProxyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RDSProxyAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: '*'
+
+  CreateDBDataV1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CreateDBDataV1Function
+      AutoPublishAlias: v1
+      CodeUri: src/Aurora_v1
+      Handler: app.handler
+      Runtime: python3.13
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
+          DB_PORT: !Ref DBPort
+          DB_NAME: !Ref DatabaseName
+          DB_PASSWORD_SECRET_ARN: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      Layers:
+        - !Ref PowertoolsLayer
+        - !Ref SqlalchemyLayer
+        - !Ref SqlModelsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - rds-db:connect
+            Resource: '*'
+      Events:
+        PutS3Object:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: post
+            RestApiId: !Ref ProdApi
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
