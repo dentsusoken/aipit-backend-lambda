@@ -4,7 +4,7 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "forwardPorts": [4566],
-  "runServices": ["localstack", "app"],
+  "runServices": ["localstack", "app", "postgres"],
   "postCreateCommand": "git config --global --add safe.directory /workspace && pip install -r requirements-dev.txt && pre-commit install -t pre-commit -t pre-push",
   "customizations": {
     "vscode": {
