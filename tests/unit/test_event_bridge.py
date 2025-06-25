@@ -1,11 +1,12 @@
-import os
 from unittest.mock import Mock
 
 import requests
+from aws_lambda_powertools.utilities.parameters import get_parameter
 
 from src.EventBridge_v1 import app
 
-BUCKET_NAME = os.environ["BUCKET_NAME"]
+BUCKET_NAME = get_parameter("/sample/bucket_name")
+print(BUCKET_NAME)
 
 
 def test_lambda_handler() -> None:

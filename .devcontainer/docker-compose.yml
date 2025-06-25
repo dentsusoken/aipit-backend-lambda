@@ -63,6 +63,17 @@ services:
         aliases:
           - localhost.localstack.cloud
 
+  postgres:
+    image: postgres:16.6
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=SampleDB
+    ports:
+      - "5432:5432"
+    networks:
+      localnet:
+
 volumes:
   localstack_data:
 
