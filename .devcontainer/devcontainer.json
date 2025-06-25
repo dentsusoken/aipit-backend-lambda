@@ -4,8 +4,8 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "forwardPorts": [4566],
-  "runServices": ["localstack", "app"],
-  "postCreateCommand": "git config --global --add safe.directory /workspace && pip install -r requirements-dev.txt && pre-commit install -t pre-commit -t pre-push",
+  "runServices": ["localstack", "app", "postgres"],
+  "postCreateCommand": "PGPASSWORD='test' psql -h postgres -U test -d SampleDB -f /workspace/.devcontainer/init.sql && git config --global --add safe.directory /workspace && pip install -r requirements-dev.txt && pre-commit install -t pre-commit -t pre-push",
   "customizations": {
     "vscode": {
       "extensions": [
