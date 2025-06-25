@@ -17,3 +17,4 @@ requests
 aws-lambda-powertools
 sqlalchemy
 psycopg2-binary
+cryptography

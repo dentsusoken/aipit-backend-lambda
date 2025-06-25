@@ -544,6 +544,51 @@ Resources:
             Method: post
             RestApiId: !Ref ProdApi
 
+  PKCSSignV1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: PKCSSignV1Function
+      AutoPublishAlias: v1
+      CodeUri: src/PKCS_v1
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_ENDPOINT: !GetAtt SampleRDSProxy.Endpoint
+          DB_PORT: !Ref DBPort
+          DB_NAME: !Ref DatabaseName
+          DB_PASSWORD_SECRET_ARN: !GetAtt SampleCluster.MasterUserSecret.SecretArn
+      Layers:
+        - !Ref PowertoolsLayer
+        - !Ref SqlalchemyLayer
+        - !Ref SqlModelsLayer
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: '*'
+            - Effect: Allow
+              Action:
+              - rds-db:connect
+              Resource: '*'
+      Events:
+        PKCSSign:
+          Type: Api
+          Properties:
+            Path: /pkcs-sign
+            Method: post
+            RestApiId: !Ref ProdApi
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -562,6 +607,9 @@ Outputs:
   LocalStackPutS3ObjectV1Api:
     Description: LocalStack でのS3 オブジェクト追加用API
     Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/s3"
+  LocalStackPKCSSignV1Api:
+    Description: LocalStack での PKCS 署名用 API
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/pkcs-sign"
   # }
 
   HelloWorldV1Function:
