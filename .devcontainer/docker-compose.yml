@@ -73,12 +73,9 @@ services:
       - "5432:5432"
     networks:
       localnet:
-    volumes:
-      - pgdata:/var/lib/postgresql/data
 
 volumes:
   localstack_data:
-  pgdata:
 
 networks:
   localnet:
