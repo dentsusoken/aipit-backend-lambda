@@ -1,13 +1,14 @@
 import json
-import os
 from unittest.mock import Mock
 
 import requests
+from aws_lambda_powertools.utilities.parameters import get_parameter
 from aws_lambda_typing.events import SQSEvent
 
 from src.SQS_v1 import reciever
 
-BUCKET_NAME = os.environ["BUCKET_NAME"]
+BUCKET_NAME = get_parameter("/sample/bucket_name")
+print(BUCKET_NAME)
 
 
 def test_sqs_reciever() -> None:

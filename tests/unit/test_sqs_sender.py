@@ -6,15 +6,16 @@ from unittest.mock import Mock
 
 import boto3
 import pytest
+from aws_lambda_powertools.utilities.parameters import get_parameter
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from mypy_boto3_sqs import SQSClient
 from mypy_boto3_sqs.type_defs import MessageTypeDef
 
 from src.SQS_v1 import sender
 
-AWS_DEFAULT_REGION = os.environ["AWS_DEFAULT_REGION"]
+AWS_DEFAULT_REGION = get_parameter("/sample/region")
 AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
-QUEUE_NAME = os.environ["QUEUE_NAME"]
+QUEUE_NAME = get_parameter("/sample/queue_name")
 
 
 @pytest.fixture(scope="module", autouse=True)
