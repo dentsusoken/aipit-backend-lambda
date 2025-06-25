@@ -22,7 +22,7 @@ def lambda_handler(event: SQSEvent, context: Context) -> None:
             object_name = "sqs.txt"
 
         params: dict[str, Any] = {
-            "FunctionName": "PutS3ObjectV1Function",
+            "FunctionName": "PutS3ObjectV1FunctionPattern2",
             "Payload": json.dumps(
                 {"body": json.dumps({"object_name": f"{object_name}"})}
             ),
