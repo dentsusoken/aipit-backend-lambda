@@ -8,18 +8,12 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 30
 
     Tracing: Active
     # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
     LoggingConfig:
       LogFormat: JSON
-
-    Environment:
-      Variables:
-        BUCKET_NAME: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
-        OBJECT_NAME: sample.txt
-        QUEUE_NAME: sampleQueue.fifo
 
   Api:
     TracingEnabled: true
@@ -27,39 +21,31 @@ Globals:
 Parameters:
   BucketName:
     Type: String
-    Default: sample-bucket-8b902d87-1c66-4cb6-9eae-a180842c6351
+    Default: sample-bucket-f438c70f-17f3-4fdb-8085-f847589306df
     Description: Default Bucket Name
   QueueName:
     Type: String
-    Default: sampleQueue.fifo
+    Default: sampleQueuePattern2.fifo
     Description: Default Queue Name
-  DBUsername:
+  LambdaSecurityGroup:
     Type: String
-    Default: SampleUser
-    Description: Default Database Username
-  DatabaseName:
+    Default: sg-07dc47c472d41aeee
+    Description: Lambda Security Goup Id
+  Subnet1:
     Type: String
-    Default: SampleDB
-    Description: Default Database Name
-  DBEngine:
+    Default: subnet-02721270caa4d237e
+    Description: Subnet1 Id
+  Subnet2:
     Type: String
-    Default: aurora-postgresql
-    Description: Default Database Engine
-  RDSProxyName:
-    Type: String
-    Default: sample-rds-proxy-18bd54cb-7b7f-42fb-95a5-df7b59cb730d
-    Description: Default RDS Proxy Name
-  DBPort:
-    Type: Number
-    Default: 5432
-    Description: Default Database Port
+    Default: subnet-0288a2a5fc6bbad37
+    Description: Subnet2 Id
 
 Resources:
   # Api Gateway
   ProdApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: ProdApi
+      Name: ProdApiPattern2
       StageName: prod  # ← ここがデフォルトステージ名になる
   #     Open API との紐づけ (Lambda とAPI Gateway が紐づかなくなる問題があるので後回し)
   #     DefinitionBody:
@@ -68,65 +54,11 @@ Resources:
   #         Parameters:
   #           Location: openapi.yml
 
-  # パラメータストア
-  ObjectNameParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /sample/object_name
-      Type: String
-      Value: sample.txt
-      Description: Default S3 Object Name
-  RegionParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /sample/region
-      Type: String
-      Value: ap-northeast-1
-      Description: Default AWS Region
-  BucketNameParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /sample/bucket_name
-      Type: String
-      Value: !Sub ${BucketName}
-      Description: Default S3 Bucket Name
-  QueueNameParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /sample/queue_name
-      Type: String
-      Value: !Sub ${QueueName}
-      Description: Default Queue Name
-  DBEndpointSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: /database/endpoint
-      SecretString: !GetAtt SampleRDSProxy.Endpoint
-      Description: Database Endpoint
-  DBPortSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: /database/port
-      SecretString: !Ref DBPort
-      Description: Databese Port
-  DBNameSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: /database/name
-      SecretString: !Ref DatabaseName
-      Description: Databese Name
-  DBSecretArnSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: /database/secret_arn
-      SecretString: !GetAtt SampleCluster.MasterUserSecret.SecretArn
-      Description: Databese Secret Arn
-
   # Lambda レイヤー
-  PowertoolsLayer:
+  PowertoolsLayerPattern2:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: PowertoolsLayer
+      LayerName: PowertoolsLayerPattern2
       ContentUri: layers/powertools
       CompatibleRuntimes:
         - python3.13
@@ -134,10 +66,10 @@ Resources:
       BuildMethod: python3.13
       BuildArchitecture: x86_64
 
-  SqlalchemyLayer:
+  SqlalchemyLayerPattern2:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: SqlalchemyLayer
+      LayerName: SqlalchemyLayerPattern2
       ContentUri: layers/sqlalchemy
       CompatibleRuntimes:
         - python3.13
@@ -145,10 +77,10 @@ Resources:
       BuildMethod: python3.13
       BuildArchitecture: x86_64
 
-  SqlModelsLayer:
+  SqlModelsLayerPattern2:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: SqlModelsLayer
+      LayerName: SqlModelsLayerPattern2
       ContentUri: layers/sql_models
       CompatibleRuntimes:
         - python3.13
@@ -156,16 +88,22 @@ Resources:
       BuildMethod: python3.13
       BuildArchitecture: x86_64
 
-  HelloWorldV1Function:
+  HelloWorldV1FunctionPattern2:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      FunctionName: HelloWorldV1Function
+      FunctionName: HelloWorldV1FunctionPattern2
       AutoPublishAlias: v1
       CodeUri: src/hello_world_v1/
       Handler: app.handler
       Runtime: python3.13
       Layers:
-        - !Ref PowertoolsLayer
+        - !Ref PowertoolsLayerPattern2
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Events:
@@ -184,16 +122,22 @@ Resources:
     Properties:
       BucketName: !Ref BucketName
 
-  PutS3ObjectV1Function:
+  PutS3ObjectV1FunctionPattern2:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: PutS3ObjectV1Function
+      FunctionName: PutS3ObjectV1FunctionPattern2
       AutoPublishAlias: v1
       CodeUri: src/S3_v1
       Handler: app.lambda_handler
       Runtime: python3.13
       Layers:
-        - !Ref PowertoolsLayer
+        - !Ref PowertoolsLayerPattern2
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
         - x86_64
       Policies:
@@ -216,16 +160,22 @@ Resources:
   # }
 
   # EventBridge
-  EventBridgeV1Function:
+  EventBridgeV1FunctionPattern2:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      FunctionName: "EventBridgeV1Function"
+      FunctionName: "EventBridgeV1FunctionPattern2"
       AutoPublishAlias: v1
       CodeUri: src/EventBridge_v1
       Handler: app.lambda_handler
       Runtime: python3.13
       Layers:
-        - !Ref PowertoolsLayer
+        - !Ref PowertoolsLayerPattern2
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -233,12 +183,12 @@ Resources:
           - Effect: Allow
             Action:
               - lambda:InvokeFunction
-            Resource: !GetAtt PutS3ObjectV1Function.Arn
+            Resource: !GetAtt PutS3ObjectV1FunctionPattern2.Arn
       Events:
-        SampleEvent:
+        SampleEventPattern2:
           Type: Schedule
           Properties:
-            Name: SampleEvent
+            Name: SampleEventPattern2
             Schedule: 'rate(365 days)'
             State: ENABLED
   # }
@@ -248,19 +198,25 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       FifoQueue: true
-      QueueName: sampleQueue.fifo
+      QueueName: !Ref QueueName
       ContentBasedDeduplication: true
 
-  SQSRecieverV1Function:
+  SQSRecieverV1FunctionPattern2:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "SQSRecieverV1Function"
+      FunctionName: "SQSRecieverV1FunctionPattern2"
       AutoPublishAlias: v1
       CodeUri: src/SQS_v1
       Handler: reciever.lambda_handler
       Runtime: python3.13
       Layers:
-        - !Ref PowertoolsLayer
+        - !Ref PowertoolsLayerPattern2
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -268,23 +224,29 @@ Resources:
           - Effect: Allow
             Action:
               - lambda:InvokeFunction
-            Resource: !GetAtt PutS3ObjectV1Function.Arn
+            Resource: !GetAtt PutS3ObjectV1FunctionPattern2.Arn
       Events:
         SqsReciever:
           Type: SQS
           Properties:
             Queue: !GetAtt SampleQueue.Arn
 
-  SQSSenderV1Function:
+  SQSSenderV1FunctionPattern2:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "SQSSenderV1Function"
+      FunctionName: "SQSSenderV1FunctionPattern2"
       AutoPublishAlias: v1
       CodeUri: src/SQS_v1
       Handler: sender.lambda_handler
       Runtime: python3.13
       Layers:
-        - !Ref PowertoolsLayer
+        - !Ref PowertoolsLayerPattern2
+      VpcConfig:
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
       Architectures:
       - x86_64
       Policies:
@@ -311,209 +273,19 @@ Resources:
             RestApiId: !Ref ProdApi
   # }
 
-  # Aurora
-  SampleDBSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: Subnet group for Aurora
-      SubnetIds:
-        - !Ref Subnet1
-        - !Ref Subnet2
-      DBSubnetGroupName: SampleDBSubnetGroup
-
-  SampleCluster:
-    Type: AWS::RDS::DBCluster
-    Properties:
-      DatabaseName: !Ref DatabaseName
-      Engine: !Ref DBEngine
-      Port: !Ref DBPort
-      ManageMasterUserPassword: true
-      VpcSecurityGroupIds:
-        - !Ref RDSSecurityGroup
-      DBSubnetGroupName: !Ref SampleDBSubnetGroup
-
-  SampleInstance:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      DBClusterIdentifier: !Ref SampleCluster
-      DBInstanceClass: db.t3.medium
-      Engine: !Ref DBEngine
-      PubliclyAccessible: false
-
-  SampleRDSTargetGroup:
-    Type: AWS::RDS::DBProxyTargetGroup
-    Properties:
-      DBClusterIdentifiers:
-        - !Ref SampleCluster
-      DBProxyName: !Ref RDSProxyName
-      TargetGroupName: default
-
-  SampleRDSProxy:
-    Type: AWS::RDS::DBProxy
-    Properties:
-      Auth:
-        - AuthScheme: SECRETS
-          ClientPasswordAuthType: POSTGRES_SCRAM_SHA_256
-          Description: RDS Prosy Auth
-          IAMAuth: DISABLED
-          SecretArn: !GetAtt SampleCluster.MasterUserSecret.SecretArn
-      DBProxyName: !Ref RDSProxyName
-      EngineFamily: POSTGRESQL
-      RoleArn: !GetAtt RDSProxyRole.Arn
-      VpcSubnetIds:
-        - !Ref Subnet1
-        - !Ref Subnet2
-      VpcSecurityGroupIds:
-        - Ref: RDSProxySecurityGroup
-
-  RDSSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow PostgreSQL access within the lambda security group
-      GroupName: RDSSecurityGroup
-      VpcId:
-        Ref: VPC
-  RDSSecurityGroupIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref RDSSecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref DBPort
-      ToPort: !Ref DBPort
-      SourceSecurityGroupId: !Ref RDSProxySecurityGroup
-
-  LambdaSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow PostgreSQL and SecretsManager access
-      GroupName: LambdaSecurityGroup
-      VpcId:
-        Ref: VPC
-  LambdaSecurityGroupEgress1:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref LambdaSecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref DBPort
-      ToPort: !Ref DBPort
-      DestinationSecurityGroupId: !Ref RDSProxySecurityGroup
-  LambdaSecurityGroupEgress2:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref LambdaSecurityGroup
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
-      DestinationSecurityGroupId: !Ref AllowAccessSecretManagerGroup
-
-  RDSProxySecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow PostgreSQL access within the lambda security group
-      GroupName: RDSProxySecurityGroup
-      VpcId:
-        Ref: VPC
-  RDSProxySecurityGroupEgress:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref RDSProxySecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref DBPort
-      ToPort: !Ref DBPort
-      DestinationSecurityGroupId: !Ref RDSSecurityGroup
-  RDSProxySecurityGroupIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref RDSProxySecurityGroup
-      IpProtocol: tcp
-      FromPort: !Ref DBPort
-      ToPort: !Ref DBPort
-      SourceSecurityGroupId: !Ref LambdaSecurityGroup
-
-  # VPC 内からシークレットマネージャーへアクセスできるようにする
-  SecretsManagerVPCEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.secretsmanager"
-      VpcId: !Ref VPC
-      VpcEndpointType: Interface
-      SubnetIds:
-        - !Ref Subnet1
-        - !Ref Subnet2
-      SecurityGroupIds:
-        - !Ref AllowAccessSecretManagerGroup
-      PrivateDnsEnabled: true
-  AllowAccessSecretManagerGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow Seacrets Manager access within the lambda security group
-      GroupName: AllowAccessSecretManagerGroup
-      VpcId:
-        Ref: VPC
-  AllowAccessSecretManagerGroupIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref AllowAccessSecretManagerGroup
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
-      SourceSecurityGroupId: !Ref LambdaSecurityGroup
-
-  VPC:
-    Type: "AWS::EC2::VPC"
-    Properties:
-      CidrBlock: 10.1.0.0/16
-      EnableDnsSupport: "true"
-      EnableDnsHostnames: "true"
-
-  Subnet1:
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: !Select [0, !GetAZs ""]
-      CidrBlock: 10.1.0.0/24
-      VpcId: !Ref VPC
-
-  Subnet2:
-    Type: "AWS::EC2::Subnet"
-    Properties:
-      AvailabilityZone: !Select [1, !GetAZs ""]
-      CidrBlock: 10.1.1.0/24
-      VpcId: !Ref VPC
-
-  # RDS Proxy がSecret Manager の値を取得する権限
-  RDSProxyRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: rds.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: RDSProxyAccess
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: '*'
-
-  CreateDBDataV1Function:
+  CreateDBDataV1FunctionPattern2:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: CreateDBDataV1Function
+      FunctionName: CreateDBDataV1FunctionPattern2
       AutoPublishAlias: v1
       CodeUri: src/Aurora_v1
       Handler: app.handler
       Runtime: python3.13
       Timeout: 30
       Layers:
-        - !Ref PowertoolsLayer
-        - !Ref SqlalchemyLayer
-        - !Ref SqlModelsLayer
+        - !Ref PowertoolsLayerPattern2
+        - !Ref SqlalchemyLayerPattern2
+        - !Ref SqlModelsLayerPattern2
       VpcConfig:
         SubnetIds:
           - !Ref Subnet1
@@ -554,6 +326,12 @@ Outputs:
   PutS3ObjectV1Api:
     Description: S3 オブジェクト追加用API
     Value: !Sub "https://${ProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/s3/"
+  SQSSenderV1V1Api:
+    Description: SQS メッセージ送信用API
+    Value: !Sub "https://${ProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sqs/"
+  CreateDBDataV1Api:
+    Description: RDS データ挿入用API
+    Value: !Sub "https://${ProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/db/"
 
   # LocalStack 用API {
   LocalStackHelloWorldV1Api:
@@ -562,11 +340,17 @@ Outputs:
   LocalStackPutS3ObjectV1Api:
     Description: LocalStack でのS3 オブジェクト追加用API
     Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/s3"
+  LocalStackSQSSenderV1V1Api:
+    Description: SQS メッセージ送信用API
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/sqs/"
+  LocalStackCreateDBDataV1Api:
+    Description: RDS データ挿入用API
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/db/"
   # }
 
-  HelloWorldV1Function:
+  HelloWorldV1FunctionPattern2:
     Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldV1Function.Arn
+    Value: !GetAtt HelloWorldV1FunctionPattern2.Arn
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldV1FunctionRole.Arn
+    Value: !GetAtt HelloWorldV1FunctionPattern2Role.Arn
