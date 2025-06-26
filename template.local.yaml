@@ -289,6 +289,29 @@ Resources:
             Method: post
             RestApiId: !Ref ProdApi
 
+  PKCSSignV1Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: PKCSSignV1Function
+      AutoPublishAlias: v1
+      CodeUri: src/PKCS_v1
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Timeout: 30
+      Layers:
+        - !Ref PowertoolsLayerPattern2
+        - !Ref SqlalchemyLayerPattern2
+        - !Ref SqlModelsLayerPattern2
+      Architectures:
+        - x86_64
+      Events:
+        PKCSSign:
+          Type: Api
+          Properties:
+            Path: /pkcs-sign
+            Method: post
+            RestApiId: !Ref ProdApi
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -306,6 +329,9 @@ Outputs:
   LocalStackCreateDBDataV1Api:
     Description: RDS データ挿入用API
     Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/db/"
+  LocalStackPKCSSignV1Api:
+    Description: LocalStack での PKCS 署名用 API
+    Value: !Sub "http://localstack:4566/restapis/${ProdApi}/prod/_user_request_/pkcs-sign"
   # }
 
   HelloWorldV1FunctionPattern2:
@@ -314,3 +340,6 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt HelloWorldV1FunctionPattern2Role.Arn
+  PKCSSignV1Function:
+    Description: PKCS 署名用 Lambda Function ARN
+    Value: !GetAtt PKCSSignV1Function.Arn

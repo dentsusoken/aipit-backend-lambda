@@ -1,0 +1,4 @@
+requests
+aws-lambda-typing
+mypy_boto3_s3
+cryptography
