@@ -3,7 +3,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "sam-app-pattern2"
+stack_name = "pymupdf-test"
 
 [default.build.parameters]
 cached = true
