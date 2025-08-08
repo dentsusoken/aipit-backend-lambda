@@ -28,7 +28,7 @@ jobs:
           use-installer: true
 
       - name: Build resources
-        run: sam build -t template.yaml
+        run: sam build -t template.dev.yaml
 
       - name: Authenticate to AWS with access keys
         uses: aws-actions/configure-aws-credentials@v4
