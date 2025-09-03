@@ -98,7 +98,7 @@ Resources:
       Handler: app.handler
       Runtime: python3.13
       Description: test
-      Timeout: 30
+      Timeout: 25
       Layers:
         - !Ref PowertoolsLayerPattern2
       VpcConfig:
