@@ -93,6 +93,7 @@ Resources:
     Properties:
       FunctionName: HelloWorldV1FunctionPattern2
       AutoPublishAlias: v1
+      AutoPublishAliasAllProperties: true
       CodeUri: src/hello_world_v1/
       Handler: app.handler
       Runtime: python3.13
