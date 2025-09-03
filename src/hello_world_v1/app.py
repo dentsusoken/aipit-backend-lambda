@@ -12,6 +12,7 @@ metrics = Metrics(namespace="HelloWorldFunction", service="HelloWorld")
 
 @app.get("/hello")
 def hello() -> Dict[str, str]:
+
     return {"message": "hello world"}
 
 
