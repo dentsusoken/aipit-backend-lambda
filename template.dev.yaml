@@ -97,7 +97,7 @@ Resources:
       CodeUri: src/hello_world_v1/
       Handler: app.handler
       Runtime: python3.13
-      Role: arn:aws:iam::183631337085:role/sam-app-pattern2-HelloWorldV1FunctionPattern2Role-4YgYMQ9BBsTR
+      Description: test
       Layers:
         - !Ref PowertoolsLayerPattern2
       VpcConfig:
